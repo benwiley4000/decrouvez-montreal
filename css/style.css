@@ -26,7 +26,7 @@ body {
 #headline:hover {
 	opacity: 0.5;
 }
-
+/*
 #map-frame {
 	width: calc(80% - 30px);
 	height: calc(100% - 20px);
@@ -36,13 +36,15 @@ body {
 	z-index: 1;
 	background-color: #000;
 }
-
+*/
 #map-canvas {
-	height: 100%;
-	width: 100%;
+	height: calc(100% - 20px);
+	width: calc(80% - 50px);
 	margin: 0;
 	padding: 0;
-	z-index: 2;
+	float: left;
+	z-index: 1;
+	border: 10px solid #000;
 }
 
 #sidebar {
