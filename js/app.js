@@ -108,7 +108,8 @@ ko.bindingHandlers.map = {
 			});
 			// set up the search bar
 			searchSetUp();
-			document.getElementById('sidebar').style.display = "initial";
+			// show the sidebar
+			$('#sidebar').show();
 		}
 
 		// otherwise, data is searched for
@@ -125,7 +126,7 @@ ko.bindingHandlers.map = {
 					// set up the search bar
 					searchSetUp();
 					// show the sidebar
-					document.getElementById('sidebar').style.display = "initial";
+					$('#sidebar').show();
 				}
 			};
 
@@ -135,10 +136,85 @@ ko.bindingHandlers.map = {
 
 		// sets up the search bar on the map
 		function searchSetUp() {
+
+			// Implementation based off of code found here:
+			// https://developers.google.com/maps/documentation/javascript/examples/places-searchbox
+
 			var input = document.getElementById('pac-input');
 			var searchBox = new GM.places.SearchBox(input);
 			MAP.controls[GM.ControlPosition.TOP_LEFT].push(input);
 			searchBox.setBounds(mapData.centerData.viewport);
+
+			var markers = [];
+			// listens for changes in the searchbox places
+			searchBox.addListener('places_changed', function() {
+				var places = searchBox.getPlaces();
+
+				if (places.length === 0) {
+					return;
+				}
+
+				// removes old markers
+				markers.forEach(function(marker) {
+					marker.setMap(null);
+				});
+				markers = [];
+
+				// for each place, gets the icon, name and location
+				var bounds = new GM.LatLngBounds();
+				var lastWindow = null;
+				places.forEach(function(place) {
+					var icon = {
+						url: place.icon,
+						size: new GM.Size(71, 71),
+						origin: new GM.Point(0, 0),
+						anchor: new GM.Point(17, 34),
+						scaledSize: new GM.Size(25, 25)
+					};
+
+					// Create a marker for each place.
+					var marker = new GM.Marker({
+						map: MAP,
+						icon: icon,
+						title: place.name,
+						position: place.geometry.location
+					});
+
+					marker.infoWindow = new GM.InfoWindow({
+						content: '<div class="infoWindow">' +
+						'<p class="add-marker">' +
+						'Add ' + place.name + 'to map' +
+						'</p></div>'
+					});
+
+					google.maps.event.addListener(marker, 'click', function() {
+						console.log(this);
+						if(lastWindow) {
+							lastWindow.close();
+							if(lastWindow === infoWindow)
+								lastWindow = null;
+							else {
+								infoWindow.open(MAP, marker);
+								lastWindow = infoWindow;
+							}
+						} else {
+							infoWindow.open(map,marker);
+							lastWindow = infoWindow;
+						}
+					});
+
+					markers.push(marker);
+
+					if (place.geometry.viewport) {
+						// Only geocodes have viewport.
+						bounds.union(place.geometry.viewport);
+					} else {
+						bounds.extend(place.geometry.location);
+					}
+				});
+			    //MAP.fitBounds(bounds);
+			});
+			// [END region_getplaces]
 		}
 	},
 

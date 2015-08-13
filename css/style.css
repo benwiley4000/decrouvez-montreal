@@ -134,3 +134,7 @@ body {
 }
 
 /* End Google Search CSS */
+
+.add-marker {
+	cursor: pointer;
+}
