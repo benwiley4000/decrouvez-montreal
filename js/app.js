@@ -106,6 +106,8 @@ ko.bindingHandlers.map = {
 				center: mapData.centerData.location,
 				zoom: ZOOM
 			});
+			// set up the search bar
+			searchSetUp();
 			document.getElementById('sidebar').style.display = "initial";
 		}
 
@@ -120,6 +122,8 @@ ko.bindingHandlers.map = {
 						center: mapData.centerData.location,
 						zoom: ZOOM
 					});
+					// set up the search bar
+					searchSetUp();
 					// show the sidebar
 					document.getElementById('sidebar').style.display = "initial";
 				}
@@ -127,6 +131,14 @@ ko.bindingHandlers.map = {
 
 			// searches with name of map center and initializes rest of map data
 			SERVICE.textSearch({query: mapData.placeName}, mapSetUp);
+		}
+
+		// sets up the search bar on the map
+		function searchSetUp() {
+			var input = document.getElementById('pac-input');
+			var searchBox = new GM.places.SearchBox(input);
+			MAP.controls[GM.ControlPosition.TOP_LEFT].push(input);
+			searchBox.setBounds(mapData.centerData.viewport);
 		}
 	},
 
