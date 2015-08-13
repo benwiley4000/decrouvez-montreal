@@ -46,8 +46,8 @@ var ViewModel = function() {
 	// initializes empty array of Marker objects.
 	self.markers = [];
 
-	// when called, adds a new marker to mapData.list
-	self.addMarker = function(placeId, geometry) {
+	// when called, adds a new place to mapData.list
+	self.addPlace = function(placeId, geometry) {
 		self.mapData.list.push({
 			"placeId": placeId,
 			"geometry": geometry
@@ -55,14 +55,14 @@ var ViewModel = function() {
 		self.updateStorage();
 	};
 
-	// when called, removes all markers with the given placeId property
-	self.removeMarker = function(placeId) {
+	// when called, removes all places with the given placeId property
+	self.removePlace = function(placeId) {
 		self.mapData.list = ko.observableArray(this.mapData.list.remove(function(place) {
 			return place.placeId === placeId;
 		}));
 		self.updateStorage();
 	};
-
+	
 	// saves current state of mapData to localStorage
 	self.updateStorage = function() {
 		store(self.mapData);
@@ -105,7 +105,7 @@ ko.bindingHandlers.map = {
 
 	// called whenever entries are added or subtracted from marker data list
 	update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-		// gets the list of marker data
+		// gets the list of place data
 		var list = valueAccessor().list();
 
 		// gets the Markers array
