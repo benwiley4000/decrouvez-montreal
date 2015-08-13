@@ -106,7 +106,7 @@ ko.bindingHandlers.map = {
 				center: mapData.centerData.location,
 				zoom: ZOOM
 			});
-			$('#sidebar').show();
+			document.getElementById('sidebar').style.display = "initial";
 		}
 
 		// otherwise, data is searched for
@@ -120,7 +120,7 @@ ko.bindingHandlers.map = {
 						center: mapData.centerData.location,
 						zoom: ZOOM
 					});
-					$('#sidebar').show();
+					document.getElementById('sidebar').style.display = "initial";
 				}
 			};
 
