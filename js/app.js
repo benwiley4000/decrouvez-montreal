@@ -43,11 +43,10 @@ var ViewModel = function() {
 	self.mapData = initModel();
 
 	// when called, adds a new marker to mapData.list
-	self.addMarker = function(place_id, loc, viewport) {
+	self.addMarker = function(place_id, geometry) {
 		self.mapData.list.push({
 			"place_id": place_id,
-			"loc": loc,
-			"viewport": viewport
+			"geometry": geometry
 		});
 	};
 
