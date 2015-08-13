@@ -11,7 +11,7 @@ var store = function(mapData) {
 	dataCopy.list = mapData.list();
 
 	// stores data
-	localStorage.mapData = JSON.stringify(mapData);
+	localStorage.mapData = JSON.stringify(dataCopy);
 };
 
 // initializes 'mapData' using localStorage if available
@@ -48,6 +48,7 @@ var ViewModel = function() {
 			"place_id": place_id,
 			"geometry": geometry
 		});
+		self.updateStorage();
 	};
 
 	// when called, removes all markers with the given place_id property
@@ -55,7 +56,13 @@ var ViewModel = function() {
 		self.mapData.list = ko.observableArray(this.mapData.list.remove(function(place) {
 			return place.place_id === place_id;
 		}));
+		self.updateStorage();
 	};
+
+	// saves current state of mapData to localStorage
+	self.updateStorage = function() {
+		store(self.mapData);
+	}
 };
 
 // specifies custom binding for map
@@ -78,6 +85,7 @@ ko.bindingHandlers.map = {
 			var mapSetUpCallback = function(results, status) {
 				if(status === google.maps.places.PlacesServiceStatus.OK) {
 					mapData.centerData = results[0].geometry;
+					viewModel.updateStorage();
 					MAP.setOptions({
 						center: mapData.centerData.location,
 						zoom: 10
