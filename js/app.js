@@ -1,6 +1,7 @@
 var PLACE_NAME = "Montreal, Quebec, Canada";
-var MAP = new google.maps.Map(document.getElementById('map-canvas'));
-var SERVICE = new google.maps.places.PlacesService(MAP);
+var GM = google.maps;
+var MAP = new GM.Map(document.getElementById('map-canvas'));
+var SERVICE = new GM.places.PlacesService(MAP);
 
 // adds mapData to localStorage
 var store = function(mapData) {
@@ -21,6 +22,27 @@ var initModel = function() {
 		// pulls data from localStorage
 		mapData = JSON.parse(localStorage.mapData);
 
+		// converts object literals back to LatLng objects
+		var convert = function(geometry) {
+			var loc = geometry.location;
+			loc = new GM.LatLng(loc.G, loc.K);
+			var view = geometry.viewport;
+			var sw = new GM.LatLng(view.Ia.G, view.Ca.j);
+			var ne = new GM.LatLng(view.Ca.G, view.Ia.j);
+			view = new GM.LatLngBounds(sw, ne);
+			return {
+				location: loc,
+				viewport: view
+			};
+		}
+		
+		// calls convert on centerData and each place's geometry object
+		mapData.centerData = convert(mapData.centerData);
+		for(var i = 0; i < mapData.list.length; i++) {
+			var place = mapData.list[i];
+			place.geometry = convert(place.geometry);
+		}
+		
 		// converts plain array to observableArray
 		mapData.list = ko.observableArray(mapData.list);
 	} else {
@@ -57,12 +79,12 @@ var ViewModel = function() {
 
 	// when called, removes all places with the given placeId property
 	self.removePlace = function(placeId) {
-		self.mapData.list = ko.observableArray(this.mapData.list.remove(function(place) {
+		self.mapData.list.remove(function(place) {
 			return place.placeId === placeId;
-		}));
+		});
 		self.updateStorage();
 	};
-	
+
 	// saves current state of mapData to localStorage
 	self.updateStorage = function() {
 		store(self.mapData);
@@ -88,7 +110,7 @@ ko.bindingHandlers.map = {
 		else {
 			// callback function (invoked below) sets up initial map properties
 			var mapSetUpCallback = function(results, status) {
-				if(status === google.maps.places.PlacesServiceStatus.OK) {
+				if(status === GM.places.PlacesServiceStatus.OK) {
 					mapData.centerData = results[0].geometry;
 					bindingContext.$data.updateStorage();
 					MAP.setOptions({
@@ -114,7 +136,7 @@ ko.bindingHandlers.map = {
 		// adds a marker, if there are more data entries than markers
 		if(list.length > markers.length) {
 			var place = list[list.length - 1];
-			markers.push(new google.maps.Marker({
+			markers.push(new GM.Marker({
 				"map": MAP,
 				"place": {
 					"location": place.geometry.location,
@@ -130,7 +152,7 @@ ko.bindingHandlers.map = {
 				var marker = markers[i];
 				if(!place || place.placeId !== marker.getPlace().placeId) {
 					marker.setMap(null);
-					markers.slice(i, 1);
+					markers.splice(i, 1);
 					return;
 				}
 			}
