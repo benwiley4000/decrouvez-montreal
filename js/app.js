@@ -5,7 +5,7 @@ var SERVICE = new GM.places.PlacesService(MAP);
 var ZOOM = 10;
 
 // adds mapData to localStorage
-var store = function(mapData) {
+function store(mapData) {
 	// deep copies data
 	dataCopy = JSON.parse(JSON.stringify(mapData));
 
@@ -17,14 +17,14 @@ var store = function(mapData) {
 };
 
 // initializes 'mapData' using localStorage if available
-var initModel = function() {
+function initModel() {
 	var mapData;
 	if(localStorage.mapData) {
 		// pulls data from localStorage
 		mapData = JSON.parse(localStorage.mapData);
 
 		// converts object literals back to LatLng objects
-		var convert = function(geometry) {
+		function convert(geometry) {
 			var loc = geometry.location;
 			loc = new GM.LatLng(loc.G, loc.K);
 			var view = geometry.viewport;
@@ -60,7 +60,7 @@ var initModel = function() {
 };
 
 // the ViewModel
-var ViewModel = function() {
+function ViewModel() {
 	var self = this;
 
 	// either initializes new mapData object, or pulls one from localStorage
@@ -112,7 +112,7 @@ ko.bindingHandlers.map = {
 		// otherwise, data is searched for
 		else {
 			// callback function (invoked below) sets up initial map properties
-			var mapSetUpCallback = function(results, status) {
+			function mapSetUp(results, status) {
 				if(status === GM.places.PlacesServiceStatus.OK) {
 					mapData.centerData = results[0].geometry;
 					bindingContext.$data.updateStorage();
@@ -120,12 +120,13 @@ ko.bindingHandlers.map = {
 						center: mapData.centerData.location,
 						zoom: ZOOM
 					});
+					// show the sidebar
 					document.getElementById('sidebar').style.display = "initial";
 				}
 			};
 
 			// searches with name of map center and initializes rest of map data
-			SERVICE.textSearch({query: mapData.placeName}, mapSetUpCallback);
+			SERVICE.textSearch({query: mapData.placeName}, mapSetUp);
 		}
 	},
 
