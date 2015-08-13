@@ -85,7 +85,7 @@ ko.bindingHandlers.map = {
 			var mapSetUpCallback = function(results, status) {
 				if(status === google.maps.places.PlacesServiceStatus.OK) {
 					mapData.centerData = results[0].geometry;
-					viewModel.updateStorage();
+					bindingContext.$data.updateStorage();
 					MAP.setOptions({
 						center: mapData.centerData.location,
 						zoom: 10
