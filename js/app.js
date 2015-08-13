@@ -25,16 +25,16 @@ function initModel() {
 
 		// converts object literals back to LatLng objects
 		function convert(geometry) {
+			var obj = {};
 			var loc = geometry.location;
-			loc = new GM.LatLng(loc.G, loc.K);
-			var view = geometry.viewport;
-			var sw = new GM.LatLng(view.Ia.G, view.Ca.j);
-			var ne = new GM.LatLng(view.Ca.G, view.Ia.j);
-			view = new GM.LatLngBounds(sw, ne);
-			return {
-				location: loc,
-				viewport: view
-			};
+			obj.location = new GM.LatLng(loc.G, loc.K);
+			if(geometry.viewport) {
+				var view = geometry.viewport;
+				var sw = new GM.LatLng(view.Ia.G, view.Ca.j);
+				var ne = new GM.LatLng(view.Ca.G, view.Ia.j);
+				obj.viewport = new GM.LatLngBounds(sw, ne);
+			}
+			return obj;
 		}
 		
 		// calls convert on centerData and each place's geometry object
@@ -70,22 +70,33 @@ function ViewModel() {
 	self.markers = [];
 
 	// when called, adds a new place to mapData.list
-	self.addPlace = function(name, placeId, geometry) {
+	self.addPlace = function(name, query, geometry) {
 		self.mapData.list.push({
 			"name": name,
-			"placeId": placeId,
+			"query": query,
 			"geometry": geometry
 		});
 		self.updateStorage();
 	};
 
-	// when called, removes all places with the given placeId property
-	self.removePlace = function(placeId) {
+	// when called, removes all places with the given query property
+	self.removePlace = function(query) {
 		self.mapData.list.remove(function(place) {
-			return place.placeId === placeId;
+			return place.query === query;
 		});
 		self.updateStorage();
 	};
+
+	// when called, returns true if given query is pinned on map or false otherwise
+	self.pinned = function(query) {
+		var list = self.mapData.list();
+		for(var i = 0; i < list.length; i++) {
+			if(list[i].query === query) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	// saves current state of mapData to localStorage
 	self.updateStorage = function() {
@@ -99,6 +110,9 @@ ko.bindingHandlers.map = {
 	init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
 		// gets the mapData object
 		var mapData = valueAccessor();
+
+		// gets the ViewModel instance
+		var vm = bindingContext.$data;
 
 		// if map center data exists, go ahead and initialize
 		if(mapData.centerData) {
@@ -118,7 +132,7 @@ ko.bindingHandlers.map = {
 			function mapSetUp(results, status) {
 				if(status === GM.places.PlacesServiceStatus.OK) {
 					mapData.centerData = results[0].geometry;
-					bindingContext.$data.updateStorage();
+					vm.updateStorage();
 					MAP.setOptions({
 						center: mapData.centerData.location,
 						zoom: ZOOM
@@ -136,9 +150,6 @@ ko.bindingHandlers.map = {
 
 		// sets up the search bar on the map
 		function searchSetUp() {
-
-			// Implementation based off of code found here:
-			// https://developers.google.com/maps/documentation/javascript/examples/places-searchbox
 
 			var input = document.getElementById('pac-input');
 			var searchBox = new GM.places.SearchBox(input);
@@ -164,6 +175,12 @@ ko.bindingHandlers.map = {
 				var bounds = new GM.LatLngBounds();
 				var lastWindow = null;
 				places.forEach(function(place) {
+
+					// only run if this location is not already pinned
+					if(vm.pinned(place.name)) {
+						return;
+					}
+
 					var icon = {
 						url: place.icon,
 						size: new GM.Size(71, 71),
@@ -172,7 +189,7 @@ ko.bindingHandlers.map = {
 						scaledSize: new GM.Size(25, 25)
 					};
 
-					// Create a marker for each place.
+					// creates a marker for each place
 					var marker = new GM.Marker({
 						map: MAP,
 						icon: icon,
@@ -180,27 +197,35 @@ ko.bindingHandlers.map = {
 						position: place.geometry.location
 					});
 
+					// creates info window
 					marker.infoWindow = new GM.InfoWindow({
 						content: '<div class="infoWindow">' +
 						'<p class="add-marker">' +
-						'Add ' + place.name + 'to map' +
+						'+ Add <b>' + place.name + '</b> to map' +
 						'</p></div>'
 					});
 
-					google.maps.event.addListener(marker, 'click', function() {
-						console.log(this);
+					// on marker click, opens this info window and closes the last
+					GM.event.addListener(marker, 'click', function() {
 						if(lastWindow) {
 							lastWindow.close();
-							if(lastWindow === infoWindow)
+							if(lastWindow === this.infoWindow)
 								lastWindow = null;
 							else {
-								infoWindow.open(MAP, marker);
-								lastWindow = infoWindow;
+								this.infoWindow.open(MAP, marker);
+								lastWindow = this.infoWindow;
 							}
 						} else {
-							infoWindow.open(map,marker);
-							lastWindow = infoWindow;
+							this.infoWindow.open(MAP, marker);
+							lastWindow = this.infoWindow;
 						}
+
+						var self = this;
+						$('.add-marker:last').click(function() {
+							vm.addPlace(place.name, place.name, place.geometry);
+							self.setMap(null);
+							markers.splice(markers.indexOf(self), 1);
+						});
 					});
 
 					markers.push(marker);
@@ -212,9 +237,7 @@ ko.bindingHandlers.map = {
 						bounds.extend(place.geometry.location);
 					}
 				});
-			    //MAP.fitBounds(bounds);
 			});
-			// [END region_getplaces]
 		}
 	},
 
@@ -228,16 +251,18 @@ ko.bindingHandlers.map = {
 
 		// adds a marker, if there are more data entries than markers
 		if(list.length > markers.length) {
-			var place = list[list.length - 1];
-			markers.push(new GM.Marker({
-				"map": MAP,
-				"place": {
-					"location": place.geometry.location,
-					"placeId": place.placeId
-				},
-				"title": place.name,
-				"icon": "images/marker.png"
-			}));
+			for(var i = markers.length; i < list.length; i++) {
+				var place = list[i];
+				markers.push(new GM.Marker({
+					"map": MAP,
+					"place": {
+						"location": place.geometry.location,
+						"query": place.query
+					},
+					"title": place.name,
+					"icon": "images/marker.png"
+				}));
+			}
 		}
 
 		// otherwise, if there are more markers, searches for marker to delete
@@ -245,7 +270,7 @@ ko.bindingHandlers.map = {
 			for(var i = 0; i < markers.length; i++) {
 				var place = list[i];
 				var marker = markers[i];
-				if(!place || place.placeId !== marker.getPlace().placeId) {
+				if(!place || place.query !== marker.getPlace().query) {
 					marker.setMap(null);
 					markers.splice(i, 1);
 					return;
