@@ -2,14 +2,45 @@ var PLACE_NAME = "Montreal, Quebec, Canada";
 var MAP = new google.maps.Map(document.getElementById('map-canvas'));
 var SERVICE = new google.maps.places.PlacesService(MAP);
 
+// adds mapData to localStorage
+var store = function(mapData) {
+	// deep copies data
+	dataCopy = JSON.parse(JSON.stringify(mapData));
+
+	// list didn't copy; unwraps it for storage
+	dataCopy.list = mapData.list();
+
+	// stores data
+	localStorage.mapData = JSON.stringify(mapData);
+};
+
+// initializes 'mapData' using localStorage if available
+var initModel = function() {
+	var mapData;
+	if(localStorage.mapData) {
+		// pulls data from localStorage
+		mapData = JSON.parse(localStorage.mapData);
+
+		// converts plain array to observableArray
+		mapData.list = ko.observableArray(mapData.list);
+	} else {
+		// creates new mapData object
+		mapData = {
+			placeName: PLACE_NAME,
+			list: ko.observableArray()
+		};
+
+		// puts mapData into localStorage
+		store(mapData);
+	}
+	return mapData;
+};
+
 // the ViewModel
 var ViewModel = function() {
 	var self = this;
 
-	self.mapData = {
-		placeName: PLACE_NAME,
-		list: ko.observableArray()
-	};
+	self.mapData = initModel();
 
 	// when called, adds a new marker to mapData.list
 	self.addMarker = function(place_id, loc, viewport) {
