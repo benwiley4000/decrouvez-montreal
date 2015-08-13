@@ -70,8 +70,9 @@ var ViewModel = function() {
 	self.markers = [];
 
 	// when called, adds a new place to mapData.list
-	self.addPlace = function(placeId, geometry) {
+	self.addPlace = function(name, placeId, geometry) {
 		self.mapData.list.push({
+			"name": name,
 			"placeId": placeId,
 			"geometry": geometry
 		});
@@ -105,6 +106,7 @@ ko.bindingHandlers.map = {
 				center: mapData.centerData.location,
 				zoom: ZOOM
 			});
+			$('#sidebar').show();
 		}
 
 		// otherwise, data is searched for
@@ -118,6 +120,7 @@ ko.bindingHandlers.map = {
 						center: mapData.centerData.location,
 						zoom: ZOOM
 					});
+					$('#sidebar').show();
 				}
 			};
 

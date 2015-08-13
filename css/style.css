@@ -1,13 +1,97 @@
 html,
 body,
-#map-canvas {
+#content {
 	height: 100%;
 	margin: 0;
 	padding: 0;
 }
 
-#content {
+body {
+	font-family: 'Source Sans Pro', sans-serif;
+}
+
+#headline {
+	font-weight: bold;
+	font-size: 42px;
+	text-transform: uppercase;
+	padding: 3px;
+	position: fixed;
+	left: 50px;
+	bottom: 25px;
+	z-index: 3;
+	box-shadow: 5px 10px 15px 0px rgba(0, 0, 0, 0.4);
+	border: 2px solid #000;
+}
+
+#headline:hover {
+	opacity: 0.5;
+}
+
+#map-frame {
+	width: calc(80% - 30px);
+	height: calc(100% - 20px);
+	padding: 10px;
+	margin: 0;
+	float: left;
+	z-index: 1;
+	background-color: #000;
+}
+
+#map-canvas {
 	height: 100%;
+	width: 100%;
 	margin: 0;
 	padding: 0;
+	z-index: 2;
+}
+
+#sidebar {
+	text-align: right;
+	padding: 
+}
+
+#sidebar-header {
+	font-weight: bold;
+	text-transform: uppercase;
+	font-size: 24px;
+	line-height: 2.4em;
+	background-color: #000;
+	color: #FFF;
+	padding-right: 10px;
+}
+
+.marker-entry {
+	height: 46px;
+	font-size: 22px;
+	line-height: 2em;
+	background-color: #F8F8FF;
+	padding-right: 10px;
+	cursor: pointer;
+}
+
+.marker-entry:hover {
+	background-color: #E6E6FA;
+}
+
+.delete {
+	height: 100%;
+	text-align: left;
+	display: none;
+	float: left;
+	padding-left: 12px;
+	padding-top: 2px;
+}
+
+.marker-entry:hover .delete {
+	display: initial;
+}
+
+.delete:after {
+	content: '✖';
+}
+
+.delete:hover {
+	display: initial;
+	-webkit-transform: scale(1.3);
+	transform: scale(1.3);
 }
