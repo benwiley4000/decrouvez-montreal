@@ -145,7 +145,9 @@ ko.bindingHandlers.map = {
 				"place": {
 					"location": place.geometry.location,
 					"placeId": place.placeId
-				} 
+				},
+				"title": place.name,
+				"icon": "images/marker.png"
 			}));
 		}
 
