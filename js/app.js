@@ -40,21 +40,25 @@ var initModel = function() {
 var ViewModel = function() {
 	var self = this;
 
+	// either initializes new mapData object, or pulls one from localStorage
 	self.mapData = initModel();
 
+	// initializes empty array of Marker objects.
+	self.markers = [];
+
 	// when called, adds a new marker to mapData.list
-	self.addMarker = function(place_id, geometry) {
+	self.addMarker = function(placeId, geometry) {
 		self.mapData.list.push({
-			"place_id": place_id,
+			"placeId": placeId,
 			"geometry": geometry
 		});
 		self.updateStorage();
 	};
 
-	// when called, removes all markers with the given place_id property
-	self.removeMarker = function(place_id) {
+	// when called, removes all markers with the given placeId property
+	self.removeMarker = function(placeId) {
 		self.mapData.list = ko.observableArray(this.mapData.list.remove(function(place) {
-			return place.place_id === place_id;
+			return place.placeId === placeId;
 		}));
 		self.updateStorage();
 	};
@@ -67,6 +71,7 @@ var ViewModel = function() {
 
 // specifies custom binding for map
 ko.bindingHandlers.map = {
+	// called to initialize the map
 	init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
 		// gets the mapData object
 		var mapData = valueAccessor();
@@ -97,9 +102,39 @@ ko.bindingHandlers.map = {
 			SERVICE.textSearch({query: mapData.placeName}, mapSetUpCallback);
 		}
 	},
+
+	// called whenever entries are added or subtracted from marker data list
 	update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-		var mapData = valueAccessor();
-		console.log(mapData.list());
+		// gets the list of marker data
+		var list = valueAccessor().list();
+
+		// gets the Markers array
+		var markers = bindingContext.$data.markers;
+
+		// adds a marker, if there are more data entries than markers
+		if(list.length > markers.length) {
+			var place = list[list.length - 1];
+			markers.push(new google.maps.Marker({
+				"map": MAP,
+				"place": {
+					"location": place.geometry.location,
+					"placeId": place.placeId
+				} 
+			}));
+		}
+
+		// otherwise, if there are more markers, searches for marker to delete
+		else if(list.length < markers.length){
+			for(var i = 0; i < markers.length; i++) {
+				var place = list[i];
+				var marker = markers[i];
+				if(!place || place.placeId !== marker.getPlace().placeId) {
+					marker.setMap(null);
+					markers.slice(i, 1);
+					return;
+				}
+			}
+		}
 	}
 };
 
