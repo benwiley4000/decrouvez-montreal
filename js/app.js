@@ -2,6 +2,7 @@ var PLACE_NAME = "Montreal, Quebec, Canada";
 var GM = google.maps;
 var MAP = new GM.Map(document.getElementById('map-canvas'));
 var SERVICE = new GM.places.PlacesService(MAP);
+var ZOOM = 10;
 
 // adds mapData to localStorage
 var store = function(mapData) {
@@ -102,7 +103,7 @@ ko.bindingHandlers.map = {
 		if(mapData.centerData) {
 			MAP.setOptions({
 				center: mapData.centerData.location,
-				zoom: 10
+				zoom: ZOOM
 			});
 		}
 
@@ -115,7 +116,7 @@ ko.bindingHandlers.map = {
 					bindingContext.$data.updateStorage();
 					MAP.setOptions({
 						center: mapData.centerData.location,
-						zoom: 10
+						zoom: ZOOM
 					});
 				}
 			};
