@@ -4,8 +4,6 @@ var MAP = new GM.Map(document.getElementById('map-canvas'));
 var SERVICE = new GM.places.PlacesService(MAP);
 var ZOOM = 10;
 
-var markersss, searchhh;
-
 // adds mapData to localStorage
 function store(mapData) {
 	// deep copies data
@@ -157,7 +155,6 @@ ko.bindingHandlers.map = {
 			var searchBox = new GM.places.SearchBox(input);
 			MAP.controls[GM.ControlPosition.TOP_LEFT].push(input);
 			searchBox.setBounds(mapData.centerData.viewport);
-			searchhh = searchBox;
 
 			var markers = [];
 			// listens for changes in the searchbox places
@@ -175,7 +172,6 @@ ko.bindingHandlers.map = {
 				markers = [];
 
 				// for each place, gets the icon, name and location
-				//var bounds = new GM.LatLngBounds();
 				var lastWindow = null;
 				places.forEach(function(place) {
 					// only run if this location is not already pinned
@@ -231,15 +227,6 @@ ko.bindingHandlers.map = {
 					});
 
 					markers.push(marker);
-					markersss = markers;
-					/*
-					if(place.geometry.viewport) {
-						// Only geocodes have viewport.
-						bounds.union(place.geometry.viewport);
-					} else {
-						bounds.extend(place.geometry.location);
-					}
-					*/
 				});
 			});
 		}
