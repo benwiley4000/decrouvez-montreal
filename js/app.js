@@ -4,6 +4,8 @@ var MAP = new GM.Map(document.getElementById('map-canvas'));
 var SERVICE = new GM.places.PlacesService(MAP);
 var ZOOM = 10;
 
+var markersss, searchhh;
+
 // adds mapData to localStorage
 function store(mapData) {
 	// deep copies data
@@ -31,7 +33,7 @@ function initModel() {
 			if(geometry.viewport) {
 				var view = geometry.viewport;
 				var sw = new GM.LatLng(view.Ia.G, view.Ca.j);
-				var ne = new GM.LatLng(view.Ca.G, view.Ia.j);
+				var ne = new GM.LatLng(view.Ia.j, view.Ca.G);
 				obj.viewport = new GM.LatLngBounds(sw, ne);
 			}
 			return obj;
@@ -155,6 +157,7 @@ ko.bindingHandlers.map = {
 			var searchBox = new GM.places.SearchBox(input);
 			MAP.controls[GM.ControlPosition.TOP_LEFT].push(input);
 			searchBox.setBounds(mapData.centerData.viewport);
+			searchhh = searchBox;
 
 			var markers = [];
 			// listens for changes in the searchbox places
@@ -172,10 +175,9 @@ ko.bindingHandlers.map = {
 				markers = [];
 
 				// for each place, gets the icon, name and location
-				var bounds = new GM.LatLngBounds();
+				//var bounds = new GM.LatLngBounds();
 				var lastWindow = null;
 				places.forEach(function(place) {
-
 					// only run if this location is not already pinned
 					if(vm.pinned(place.name)) {
 						return;
@@ -229,13 +231,15 @@ ko.bindingHandlers.map = {
 					});
 
 					markers.push(marker);
-
-					if (place.geometry.viewport) {
+					markersss = markers;
+					/*
+					if(place.geometry.viewport) {
 						// Only geocodes have viewport.
 						bounds.union(place.geometry.viewport);
 					} else {
 						bounds.extend(place.geometry.location);
 					}
+					*/
 				});
 			});
 		}
@@ -266,7 +270,7 @@ ko.bindingHandlers.map = {
 		}
 
 		// otherwise, if there are more markers, searches for marker to delete
-		else if(list.length < markers.length){
+		else if(list.length < markers.length) {
 			for(var i = 0; i < markers.length; i++) {
 				var place = list[i];
 				var marker = markers[i];
