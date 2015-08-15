@@ -29,9 +29,19 @@ function initModel() {
 			var loc = geometry.location;
 			obj.location = new GM.LatLng(loc.G, loc.K);
 			if(geometry.viewport) {
+				// LatLngBounds (viewport) is accessed
+				// via E/W and S/N boundary pairs, but
+				// it can only be specified by SW and
+				// NE coordinate pairs
 				var view = geometry.viewport;
+				// construct SW coordinate pair from S
+				// bound line (Ia.G) and W bound (Ca.j)
 				var sw = new GM.LatLng(view.Ia.G, view.Ca.j);
+				// construct NE coordinate pair from N
+				// bound line (Ia.j) and E bound (Ca.G)
 				var ne = new GM.LatLng(view.Ia.j, view.Ca.G);
+				// construct new LatLngBounds from the
+				// coordinate pairs
 				obj.viewport = new GM.LatLngBounds(sw, ne);
 			}
 			return obj;
