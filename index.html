@@ -21,8 +21,8 @@
 			<div id="sidebar-header">Vos Endroits</div>
 			<div id="marker-list" data-bind="foreach: mapData.list">
 				<div class="marker-entry">
-					<div class="marker-name" data-bind="text: name"></div>
-					<div class="delete" data-bind="click: function() {$parent.removePlace(name)}"></div>
+					<div class="marker-name" data-bind="text: id > 1 ? name + ' (' + id + ')' : name"></div>
+					<div class="delete" data-bind="click: function() {$parent.removePlace(name, id)}"></div>
 				</div>
 			</div>
 		</div>

@@ -81,27 +81,37 @@ function ViewModel() {
 
 	// when called, adds a new place to mapData.list
 	self.addPlace = function(name, query, geometry) {
+		var list = self.mapData.list;
+		var id = 1;
+		// id n belongs to nth place with same name
+		list().forEach(function(place) {
+			if(place.name === name) id++;
+		});
 		self.mapData.list.push({
 			"name": name,
+			"id": id,
 			"query": query,
 			"geometry": geometry
 		});
 		self.updateStorage();
 	};
 
-	// when called, removes all places with the given query property
-	self.removePlace = function(query) {
+	// when called, removes all places with the given name and id
+	self.removePlace = function(name, id) {
 		self.mapData.list.remove(function(place) {
-			return place.query === query;
+			return place.name === name && place.id === id;
 		});
 		self.updateStorage();
 	};
 
-	// when called, returns true if given query is pinned on map or false otherwise
-	self.pinned = function(query) {
+	// when called, returns true if given name and location
+	// are already pinned on the map, false otherwise
+	self.pinned = function(name, location) {
 		var list = self.mapData.list();
 		for(var i = 0; i < list.length; i++) {
-			if(list[i].query === query) {
+			var place = list[i];
+			var loc = place.geometry.location;
+			if(place.name === name && loc.lat() === location.lat() && loc.lng() === location.lng()) {
 				return true;
 			}
 		}
@@ -185,7 +195,7 @@ ko.bindingHandlers.map = {
 				var lastWindow = null;
 				places.forEach(function(place) {
 					// only run if this location is not already pinned
-					if(vm.pinned(place.name)) {
+					if(vm.pinned(place.name, place.geometry.location)) {
 						return;
 					}
 
@@ -255,13 +265,10 @@ ko.bindingHandlers.map = {
 			for(var i = markers.length; i < list.length; i++) {
 				var place = list[i];
 				markers.push(new GM.Marker({
-					"map": MAP,
-					"place": {
-						"location": place.geometry.location,
-						"query": place.query
-					},
-					"title": place.name,
-					"icon": "images/marker.png"
+					map: MAP,
+					icon: "images/marker.png",
+					title: place.name,
+					position: place.geometry.location
 				}));
 			}
 		}
@@ -271,7 +278,7 @@ ko.bindingHandlers.map = {
 			for(var i = 0; i < markers.length; i++) {
 				var place = list[i];
 				var marker = markers[i];
-				if(!place || place.query !== marker.getPlace().query) {
+				if(!place || !(place.name === marker.getTitle() && place.geometry.location === marker.getPosition())) {
 					marker.setMap(null);
 					markers.splice(i, 1);
 					return;
