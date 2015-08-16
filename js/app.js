@@ -138,7 +138,8 @@ ko.bindingHandlers.map = {
 		if(mapData.centerData) {
 			MAP.setOptions({
 				center: mapData.centerData.location,
-				zoom: ZOOM
+				zoom: ZOOM,
+				disableDefaultUI: true
 			});
 			// set up the search bar
 			searchSetUp();
