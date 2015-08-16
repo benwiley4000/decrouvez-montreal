@@ -116,6 +116,24 @@ function ViewModel() {
 		return false;
 	}
 
+	// returns HTML content for an infoWindow
+	self.getInfoContent = function(name, place_id, isPermanent) {
+		var $content = $('<div>').addClass('info-window');
+
+		// TODO: procedure for AJAX content loading
+
+		// if this infoWindow belongs to a temp marker,
+		// adds option to add it to the map permanently
+		if(!isPermanent) {
+			var $addMarker = $('<p>').addClass('add-marker');
+			$addMarker.html('Add <em>' + name + '</em> to map');
+			$content.append($addMarker);
+		}
+
+		// converts DOM element to html string & returns
+		return $content[0].outerHTML;
+	}
+
 	// saves current state of mapData to localStorage
 	self.updateStorage = function() {
 		store(self.mapData);
