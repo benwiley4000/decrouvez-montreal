@@ -22,7 +22,7 @@
 			<div id="marker-list" data-bind="foreach: mapData.list">
 				<div class="marker-entry">
 					<div class="marker-name" data-bind="text: id > 1 ? name + ' (' + id + ')' : name"></div>
-					<div class="delete" data-bind="click: function() {$parent.removePlace(name, id)}"></div>
+					<div class="delete" data-bind="click: function() {$parent.removePlace(place_id)}"></div>
 				</div>
 			</div>
 		</div>

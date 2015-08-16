@@ -80,7 +80,7 @@ function ViewModel() {
 	self.markers = [];
 
 	// when called, adds a new place to mapData.list
-	self.addPlace = function(name, query, geometry) {
+	self.addPlace = function(name, place_id, geometry) {
 		var list = self.mapData.list;
 		var id = 1;
 		// id n belongs to nth place with same name
@@ -90,28 +90,26 @@ function ViewModel() {
 		self.mapData.list.push({
 			"name": name,
 			"id": id,
-			"query": query,
+			"place_id": place_id,
 			"geometry": geometry
 		});
 		self.updateStorage();
 	};
 
-	// when called, removes all places with the given name and id
-	self.removePlace = function(name, id) {
+	// when called, removes all places with given place_id
+	self.removePlace = function(place_id) {
 		self.mapData.list.remove(function(place) {
-			return place.name === name && place.id === id;
+			return place.place_id === place_id;
 		});
 		self.updateStorage();
 	};
 
-	// when called, returns true if given name and location
-	// are already pinned on the map, false otherwise
-	self.pinned = function(name, location) {
+	// when called, returns true if given place is already
+	// pinned on map, false otherwise
+	self.pinned = function(place_id) {
 		var list = self.mapData.list();
 		for(var i = 0; i < list.length; i++) {
-			var place = list[i];
-			var loc = place.geometry.location;
-			if(place.name === name && loc.lat() === location.lat() && loc.lng() === location.lng()) {
+			if(list[i].place_id === place_id) {
 				return true;
 			}
 		}
@@ -241,7 +239,7 @@ ko.bindingHandlers.map = {
 
 						var self = this;
 						$('.add-marker:last').click(function() {
-							vm.addPlace(place.name, place.name, place.geometry);
+							vm.addPlace(place.name, place.place_id, place.geometry);
 							self.setMap(null);
 							markers.splice(markers.indexOf(self), 1);
 						});
@@ -261,15 +259,18 @@ ko.bindingHandlers.map = {
 		// gets the Markers array
 		var markers = bindingContext.$data.markers;
 
-		// adds a marker, if there are more data entries than markers
+		// adds markers, if there are more data entries than markers
 		if(list.length > markers.length) {
 			for(var i = markers.length; i < list.length; i++) {
 				var place = list[i];
 				markers.push(new GM.Marker({
-					map: MAP,
-					icon: "images/marker.png",
-					title: place.name,
-					position: place.geometry.location
+					"map": MAP,
+					"icon": "images/marker.png",
+					"title": place.name,
+					"place": {
+						"location": place.geometry.location,
+						"placeId": place.place_id
+					}
 				}));
 			}
 		}
@@ -279,7 +280,7 @@ ko.bindingHandlers.map = {
 			for(var i = 0; i < markers.length; i++) {
 				var place = list[i];
 				var marker = markers[i];
-				if(!place || !(place.name === marker.getTitle() && place.geometry.location === marker.getPosition())) {
+				if(!place || place.place_id !== marker.getPlace().placeId) {
 					marker.setMap(null);
 					markers.splice(i, 1);
 					return;
