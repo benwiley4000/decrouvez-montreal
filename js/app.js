@@ -194,7 +194,7 @@ ko.bindingHandlers.map = {
 				var lastWindow = null;
 				places.forEach(function(place) {
 					// only run if this location is not already pinned
-					if(vm.pinned(place.name, place.geometry.location)) {
+					if(vm.pinned(place.place_id)) {
 						return;
 					}
 
