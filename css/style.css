@@ -92,8 +92,8 @@ body {
 	height: 100%;
 	display: none;
 	float: right;
-	padding-right: 12px;
-	padding-top: 2px;
+	margin-right: 12px;
+	margin-top: 2px;
 	cursor: pointer;
 	 -webkit-transition-duration: .1s;
     transition-duration: .1s;
