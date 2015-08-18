@@ -371,19 +371,20 @@ AJAXWindow.prototype.open = function(map, marker) {
 AJAXWindow.prototype.close = function() {
 	this.infoWindow.close();
 };
+// returns true if infoWindow is open, false otherwise
+AJAXWindow.prototype.isOpen = function() {
+    var map = this.infoWindow.getMap();
+    return map !== null && typeof map !== "undefined";
+}
 // opens the specified window and closes the last, if open
 AJAXWindow.windowSwap = function(thisWindow) {
 	var vm = thisWindow.viewModel;
-	if(vm.currWindow) {
-		// removes click listeners
-		$('.add-marker').unbind('click');
+	if(vm.currWindow && vm.currWindow.isOpen()) {
 		// closes current window
 		vm.currWindow.close();
-		if(thisWindow === vm.currWindow) {
-			// if this was double click, all windows gone
-			vm.currWindow = null;
-		} else {
-			// otherwise, launches window 
+		// checks if this is last-opened window
+		if(thisWindow !== vm.currWindow) {
+			// if not, launches window
 			AJAXWindow.launch(thisWindow);
 		}
 	} else {
