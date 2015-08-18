@@ -218,8 +218,6 @@ ko.bindingHandlers.map = {
 
 					var icon = {
 						url: place.icon,
-						size: new GM.Size(71, 71),
-						origin: new GM.Point(0, 0),
 						anchor: new GM.Point(17, 34),
 						scaledSize: new GM.Size(25, 25)
 					};
