@@ -23,35 +23,43 @@ function initModel() {
 		// pulls data from localStorage
 		mapData = JSON.parse(localStorage.mapData);
 
-		// converts object literals back to LatLng objects
-		function convert(geometry) {
-			var obj = {};
-			var loc = geometry.location;
-			obj.location = new GM.LatLng(loc.G, loc.K);
-			if(geometry.viewport) {
-				// LatLngBounds (viewport) is accessed
-				// via E/W and S/N boundary pairs, but
-				// it can only be specified by SW and
-				// NE coordinate pairs
-				var view = geometry.viewport;
-				// construct SW coordinate pair from S
-				// bound line (Ia.G) and W bound (Ca.j)
-				var sw = new GM.LatLng(view.Ia.G, view.Ca.j);
-				// construct NE coordinate pair from N
-				// bound line (Ia.j) and E bound (Ca.G)
-				var ne = new GM.LatLng(view.Ia.j, view.Ca.G);
-				// construct new LatLngBounds from the
-				// coordinate pairs
-				obj.viewport = new GM.LatLngBounds(sw, ne);
-			}
-			return obj;
+		// converts LatLng literal back to LatLng class instance
+		function convertLoc(loc) {
+			return new GM.LatLng(loc.G, loc.K);
+		}
+
+		// converts object literal back to LatLngBounds class instance
+		function convertViewport(v) {
+			// LatLngBounds (viewport) is accessed
+			// via E/W and S/N boundary pairs, but
+			// it can only be specified by SW and
+			// NE coordinate pairs
+
+			// construct SW coordinate pair from S
+			// bound line (Ia.G) and W bound (Ca.j)
+			var sw = new GM.LatLng(v.Ia.G, v.Ca.j);
+			// construct NE coordinate pair from N
+			// bound line (Ia.j) and E bound (Ca.G)
+			var ne = new GM.LatLng(v.Ia.j, v.Ca.G);
+			// construct new LatLngBounds from the
+			// coordinate pairs
+			return new GM.LatLngBounds(sw, ne);
+		}
+
+		// converts geometry object descendants back to
+		// appropriate class instances
+		function convertGeometry(g) {
+			return {
+				location: convertLoc(g.location),
+				viewport: convertViewport(g.viewport)
+			};
 		}
 		
 		// calls convert on centerData and each place's geometry object
-		mapData.centerData = convert(mapData.centerData);
+		mapData.centerData = convertGeometry(mapData.centerData);
 		for(var i = 0; i < mapData.list.length; i++) {
 			var place = mapData.list[i];
-			place.geometry = convert(place.geometry);
+			place.location = convertLoc(place.location);
 		}
 		
 		// converts plain array to observableArray
@@ -79,19 +87,22 @@ function ViewModel() {
 	// initializes empty array of Marker objects.
 	self.markers = [];
 
+	// initializes current AJAXWindow as null
+	self.currWindow = null;
+
 	// when called, adds a new place to mapData.list
-	self.addPlace = function(name, place_id, geometry) {
+	self.addPlace = function(name, place_id, location) {
 		var list = self.mapData.list;
-		var id = 1;
+		var num = 1;
 		// id n belongs to nth place with same name
 		list().forEach(function(place) {
-			if(place.name === name) id++;
+			if(place.name === name) num++;
 		});
 		self.mapData.list.push({
 			"name": name,
-			"id": id,
+			"num": num,
 			"place_id": place_id,
-			"geometry": geometry
+			"location": location
 		});
 		self.updateStorage();
 	};
@@ -114,24 +125,6 @@ function ViewModel() {
 			}
 		}
 		return false;
-	}
-
-	// returns HTML content for an infoWindow
-	self.getInfoContent = function(name, place_id, isPermanent) {
-		var $content = $('<div>').addClass('info-window');
-
-		// TODO: procedure for AJAX content loading
-
-		// if this infoWindow belongs to a temp marker,
-		// adds option to add it to the map permanently
-		if(!isPermanent) {
-			var $addMarker = $('<p>').addClass('add-marker');
-			$addMarker.html('Add <em>' + name + '</em> to map');
-			$content.append($addMarker);
-		}
-
-		// converts DOM element to html string & returns
-		return $content[0].outerHTML;
 	}
 
 	// saves current state of mapData to localStorage
@@ -193,7 +186,8 @@ ko.bindingHandlers.map = {
 			MAP.controls[GM.ControlPosition.TOP_LEFT].push(input);
 			searchBox.setBounds(mapData.centerData.viewport);
 
-			var markers = [];
+			// initializes empty array of marker results
+			var resultsList = [];
 			// listens for changes in the searchbox places
 			searchBox.addListener('places_changed', function() {
 				var places = searchBox.getPlaces();
@@ -203,13 +197,12 @@ ko.bindingHandlers.map = {
 				}
 
 				// removes old markers
-				markers.forEach(function(marker) {
+				resultsList.forEach(function(marker) {
 					marker.setMap(null);
 				});
-				markers = [];
+				resultsList = [];
 
 				// for each place, gets the icon, name and location
-				var lastWindow = null;
 				places.forEach(function(place) {
 					// only run if this location is not already pinned
 					if(vm.pinned(place.place_id)) {
@@ -226,44 +219,20 @@ ko.bindingHandlers.map = {
 
 					// creates a marker for each place
 					var marker = new GM.Marker({
-						map: MAP,
-						icon: icon,
-						title: place.name,
-						position: place.geometry.location
+						"map": MAP,
+						"icon": icon,
+						"title": place.name,
+						"place": {
+							"location": place.geometry.location,
+							"placeId": place.place_id
+						}
 					});
 
 					// creates info window
-					marker.infoWindow = new GM.InfoWindow({
-						content: '<div class="infoWindow">' +
-						'<p class="add-marker">' +
-						'+ Add <b>' + place.name + '</b> to map' +
-						'</p></div>'
-					});
+					marker.infoWindow = new AJAXWindow(marker, vm, resultsList);
 
-					// on marker click, opens this info window and closes the last
-					GM.event.addListener(marker, 'click', function() {
-						if(lastWindow) {
-							lastWindow.close();
-							if(lastWindow === this.infoWindow)
-								lastWindow = null;
-							else {
-								this.infoWindow.open(MAP, marker);
-								lastWindow = this.infoWindow;
-							}
-						} else {
-							this.infoWindow.open(MAP, marker);
-							lastWindow = this.infoWindow;
-						}
-
-						var self = this;
-						$('.add-marker:last').click(function() {
-							vm.addPlace(place.name, place.place_id, place.geometry);
-							self.setMap(null);
-							markers.splice(markers.indexOf(self), 1);
-						});
-					});
-
-					markers.push(marker);
+					// adds marker to temp list
+					resultsList.push(marker);
 				});
 			});
 		}
@@ -274,22 +243,33 @@ ko.bindingHandlers.map = {
 		// gets the list of place data
 		var list = valueAccessor().list();
 
+		// gets the ViewModel instance
+		var vm = bindingContext.$data;
+
 		// gets the Markers array
-		var markers = bindingContext.$data.markers;
+		var markers = vm.markers;
 
 		// adds markers, if there are more data entries than markers
 		if(list.length > markers.length) {
 			for(var i = markers.length; i < list.length; i++) {
 				var place = list[i];
-				markers.push(new GM.Marker({
+
+				// creates marker
+				var marker = new GM.Marker({
 					"map": MAP,
 					"icon": "images/marker.png",
 					"title": place.name,
 					"place": {
-						"location": place.geometry.location,
+						"location": place.location,
 						"placeId": place.place_id
 					}
-				}));
+				});
+
+				// creates info window
+				marker.infoWindow = new AJAXWindow(marker, vm);
+
+				// adds marker to permanent list
+				markers.push(marker);
 			}
 		}
 
@@ -308,5 +288,133 @@ ko.bindingHandlers.map = {
 	}
 };
 
-var vm = new ViewModel();
-ko.applyBindings(vm);
+// AJAXWindow class contains infoWindow, multiple content
+// views, current view, methods for switching views
+function AJAXWindow(marker, vm, parentList) {
+	this.marker = marker;
+	this.viewModel = vm;
+	if(parentList) this.parentList = parentList;
+
+	var name = marker.getTitle();
+
+	// initializes infoWindow content div
+	var $windowContent = $('<div class="window-content">');
+
+	// appends infoWindow header
+	$windowContent.append('<h3>' + name + '</h3>');
+
+	// appends empty loaded content div
+	var $loadedContent = $('<div class="loaded-content">');
+	$windowContent.append($loadedContent);
+
+	// ajax calls
+	//
+	// ...
+	//
+	// ...
+
+	// if this infoWindow belongs to a temp marker,
+	// adds option to add it to the map permanently
+	if(parentList) {
+		var $addMarker = $('<div class="add-marker">');
+		$addMarker.html('+ Add <strong>' + name + '</strong> to map');
+		$windowContent.append($addMarker);
+	}
+
+	// initializes infoWindow with initial content
+	this.infoWindow = new GM.InfoWindow();
+
+	// declares observable content loader
+	this.loadedHTML = ko.observable();
+	
+	// resets window content each time loadedHTML changes
+	this.loadedHTML.subscribe(function(newContent) {
+		$loadedContent.html(newContent);
+		this.infoWindow.setContent($windowContent[0]);
+	}.bind(this));
+
+	// initializes placeholder html for loaded content
+	this.loadedHTML('<p><i>Place data loading...</i></p>');
+	
+	// initializes empty third-party API content blocks
+	this.contentBlocks = {
+		streetview: null,
+		yelp: null,
+		wiki: null,
+		flickr: null
+	};
+
+	// listens for marker click, triggers windowSwap
+	var self = this;
+	GM.event.addListener(marker, 'click', function() {
+		AJAXWindow.windowSwap(self);
+	});
+}
+// if specified type of content exists, loads that content
+AJAXWindow.prototype.loadContent = function(type) {
+	if(this.contentBlocks[type]) {
+		this.loadedHTML(this.contentBlocks[type]);
+	}
+};
+// opens infoWindow above specified marker on given map
+AJAXWindow.prototype.open = function(map, marker) {
+	this.infoWindow.open(map, marker);
+};
+// closes infoWindow
+AJAXWindow.prototype.close = function() {
+	this.infoWindow.close();
+};
+// opens the specified window and closes the last, if open
+AJAXWindow.windowSwap = function(thisWindow) {
+	var vm = thisWindow.viewModel;
+	if(vm.currWindow) {
+		// removes click listeners
+		$('.add-marker').unbind('click');
+		// closes current window
+		vm.currWindow.close();
+		if(thisWindow === vm.currWindow) {
+			// if this was double click, all windows gone
+			vm.currWindow = null;
+		} else {
+			// otherwise, launches window 
+			AJAXWindow.launch(thisWindow);
+		}
+	} else {
+		// launches window
+		AJAXWindow.launch(thisWindow);
+	}
+};
+// launches the specified window and adds click handler
+AJAXWindow.launch = function(thisWindow) {
+	var marker = thisWindow.marker;
+	var vm = thisWindow.viewModel;
+	var markerPlace = marker.getPlace();
+	var name = marker.getTitle();
+	var place_id = markerPlace.placeId;
+	var location = markerPlace.location;
+	if(thisWindow.parentList) {
+		var parentList = thisWindow.parentList;
+	}
+	
+	// opens window and sets it as current
+	thisWindow.open(MAP, marker);
+	vm.currWindow = thisWindow;
+
+	// returns if there is no results list
+	// (so this marker is permanent)
+	if(!parentList) return;
+
+	// checks if handlers (assumed click) already exist
+	var events = $._data($('.add-marker:last')[0], 'events');
+	// if so, returns
+	if(events) return;
+	// if not, adds new click handler
+	$('.add-marker:last').click(function() {
+		vm.addPlace(name, place_id, location);
+		marker.setMap(null);
+		parentList.splice(parentList.indexOf(marker), 1);
+	});
+};
+
+var viewModel = new ViewModel();
+ko.applyBindings(viewModel);
