@@ -1,6 +1,8 @@
 var PLACE_NAME = "Montreal, Quebec, Canada";
 var GM = google.maps;
 var MAP = new GM.Map(document.getElementById('map-canvas'));
+//var PANO = new GM.StreetViewPanorama(document.getElementById('pano'));
+var PANO = MAP.getStreetView();
 var PLACES = new GM.places.PlacesService(MAP);
 var STREET_VIEW = new google.maps.StreetViewService();
 var ZOOM = 10;
@@ -374,7 +376,17 @@ AJAXWindow.prototype.close = function() {
 AJAXWindow.prototype.isOpen = function() {
     var map = this.infoWindow.getMap();
     return map !== null && typeof map !== "undefined";
-}
+};
+// launches streetview at the infoWindow's location
+AJAXWindow.prototype.launchStreetView = function() {
+	var location = this.marker.place.location;
+	PANO.setVisible(true);
+	PANO.setPosition(location);
+	PANO.setPov({
+		heading: 270,
+		pitch: 0
+	});
+};
 // opens the specified window and closes the last, if open
 AJAXWindow.windowSwap = function(thisWindow) {
 	var vm = thisWindow.viewModel;
@@ -421,6 +433,10 @@ AJAXWindow.launch = function(thisWindow) {
 		marker.setMap(null);
 		parentList.splice(parentList.indexOf(marker), 1);
 	});
+};
+// hides street view window
+AJAXWindow.hideStreetView = function() {
+	PANO.setVisible(false);
 };
 
 var viewModel = new ViewModel();
