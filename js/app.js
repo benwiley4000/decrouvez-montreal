@@ -364,9 +364,9 @@ AJAXWindow.prototype.loadContent = function(type) {
 		this.loadedHTML(this.contentBlocks[type]);
 	}
 };
-// opens infoWindow above specified marker on given map
-AJAXWindow.prototype.open = function(map, marker) {
-	this.infoWindow.open(map, marker);
+// opens infoWindow
+AJAXWindow.prototype.open = function() {
+	this.infoWindow.open(MAP, this.marker);
 };
 // closes infoWindow
 AJAXWindow.prototype.close = function() {
@@ -416,7 +416,7 @@ AJAXWindow.launch = function(thisWindow) {
 	}
 	
 	// opens window and sets it as current
-	thisWindow.open(MAP, marker);
+	thisWindow.open();
 	vm.currWindow = thisWindow;
 
 	// returns if there is no results list
