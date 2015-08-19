@@ -301,7 +301,12 @@ ko.bindingHandlers.map = {
 function AJAXWindow(marker, vm, parentList) {
 	this.marker = marker;
 	this.viewModel = vm;
-	if(parentList) this.parentList = parentList;
+	if(parentList) {
+		this.parentList = parentList;
+		this.isTemp = true;
+	} else {
+		this.isTemp = false;
+	}
 
 	var name = marker.getTitle();
 
@@ -323,7 +328,7 @@ function AJAXWindow(marker, vm, parentList) {
 
 	// if this infoWindow belongs to a temp marker,
 	// adds option to add it to the map permanently
-	if(this.parentList) {
+	if(this.isTemp) {
 		var $addMarker = $('<div class="add-marker">');
 		$addMarker.html('+ Add <strong>' + name + '</strong> to map');
 		$windowContent.append($addMarker);
@@ -337,18 +342,17 @@ function AJAXWindow(marker, vm, parentList) {
 	
 	// resets window content each time loadedAPI changes
 	this.loadedAPI.subscribe(function(newAPI) {
+		// sets new content
 		var newContent = newAPI ?
 			this.contentBlocks[newAPI] :
 			'<p><i>Place data loading...</i></p>';
+		// adds content to loaded-content div
 		$loadedContent.html(newContent);
+		// resets infoWindow content
 		this.infoWindow.setContent($windowContent[0]);
-		// if this is a temp marker, relaunches window
-		// to make sure add-marker listener is added
-		if(this.parentList) {
-			AJAXWindow.launch(this);
-		}
-		// adds listeners relevant to the loaded api
-		this.addAPIListeners();
+		// marks window as "fresh" so listeners
+		// will be added on launch
+		this.fresh = true;
 	}.bind(this));
 	
 	// initializes empty third-party API content blocks
@@ -388,6 +392,16 @@ AJAXWindow.prototype.isOpen = function() {
     var map = this.infoWindow.getMap();
     return map !== null && typeof map !== "undefined";
 };
+// launches infoWindow, sets it as current and adds
+// listeners if necessary
+AJAXWindow.prototype.launch = function() {
+	this.open();
+	this.viewModel.currWindow = this;
+	if(this.fresh) {
+		this.addListeners();
+		this.fresh = false;
+	}
+};
 // launches streetview at the infoWindow's location
 AJAXWindow.prototype.launchStreetView = function() {
 	var location = this.marker.place.location;
@@ -398,8 +412,32 @@ AJAXWindow.prototype.launchStreetView = function() {
 		pitch: 0
 	});
 };
-// adds listeners specific to the loaded API
-AJAXWindow.prototype.addAPIListeners = function() {
+// adds relevant listeners
+AJAXWindow.prototype.addListeners = function() {
+	var marker = this.marker;
+	var vm = this.viewModel;
+	var markerPlace = marker.getPlace();
+	var name = marker.getTitle();
+	var place_id = markerPlace.placeId;
+	var location = markerPlace.location;
+
+	// tries to add listener for add-marker button if
+	// this is a temp marker
+	if(this.isTemp === true) {
+		// checks if handlers (assumed click) already exist
+		var events = $._data($('.add-marker:last')[0], 'events');
+		// if not, adds new click handler
+		if(!events) {
+			var parentList = this.parentList;
+			$('.add-marker:last').click(function() {
+				vm.addPlace(name, place_id, location);
+				marker.setMap(null);
+				parentList.splice(parentList.indexOf(marker), 1);
+			});
+		}
+	}
+
+	// adds listeners relevant to the loaded API
 	var api = this.loadedAPI();
 	if(!api) return;
 	if(api === "streetview") {
@@ -412,7 +450,7 @@ AJAXWindow.prototype.addAPIListeners = function() {
 		console.log(api);
 	}
 };
-// opens the specified window and closes the last, if open
+// opens specified window and closes last, if open
 AJAXWindow.windowSwap = function(thisWindow) {
 	var vm = thisWindow.viewModel;
 	if(vm.currWindow && vm.currWindow.isOpen()) {
@@ -421,45 +459,13 @@ AJAXWindow.windowSwap = function(thisWindow) {
 		// checks if this is last-opened window
 		if(thisWindow !== vm.currWindow) {
 			// if not, launches window
-			AJAXWindow.launch(thisWindow);
+			thisWindow.launch();
 		}
 	} else {
 		// launches window
-		AJAXWindow.launch(thisWindow);
+		thisWindow.launch();
 	}
 };
-// launches the specified window and adds click handler
-AJAXWindow.launch = function(thisWindow) {
-	var marker = thisWindow.marker;
-	var vm = thisWindow.viewModel;
-	var markerPlace = marker.getPlace();
-	var name = marker.getTitle();
-	var place_id = markerPlace.placeId;
-	var location = markerPlace.location;
-	if(thisWindow.parentList) {
-		var parentList = thisWindow.parentList;
-	}
-	
-	// opens window and sets it as current
-	thisWindow.open();
-	vm.currWindow = thisWindow;
-
-	// returns if there is no results list
-	// (so this marker is permanent)
-	if(!parentList) return;
-
-	// checks if handlers (assumed click) already exist
-	var events = $._data($('.add-marker:last')[0], 'events');
-	// if so, returns
-	if(events) return;
-	// if not, adds new click handler
-	$('.add-marker:last').click(function() {
-		vm.addPlace(name, place_id, location);
-		marker.setMap(null);
-		parentList.splice(parentList.indexOf(marker), 1);
-	});
-};
-// hides street view window
 AJAXWindow.hideStreetView = function() {
 	PANO.setVisible(false);
 };
