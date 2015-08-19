@@ -1,7 +1,8 @@
 var PLACE_NAME = "Montreal, Quebec, Canada";
 var GM = google.maps;
 var MAP = new GM.Map(document.getElementById('map-canvas'));
-var SERVICE = new GM.places.PlacesService(MAP);
+var PLACES = new GM.places.PlacesService(MAP);
+var STREET_VIEW = new google.maps.StreetViewService();
 var ZOOM = 10;
 
 // adds mapData to localStorage
@@ -175,7 +176,7 @@ ko.bindingHandlers.map = {
 			};
 
 			// searches with name of map center and initializes rest of map data
-			SERVICE.textSearch({query: mapData.placeName}, mapSetUp);
+			PLACES.textSearch({query: mapData.placeName}, mapSetUp);
 		}
 
 		// sets up the search bar on the map
