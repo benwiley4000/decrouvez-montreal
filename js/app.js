@@ -415,20 +415,15 @@ AJAXWindow.prototype.addListeners = function() {
 	var place_id = markerPlace.placeId;
 	var location = markerPlace.location;
 
-	// tries to add listener for add-marker button if
+	// adds click handler for add-marker button if
 	// this is a temp marker
 	if(this.isTemp === true) {
-		// checks if handlers (assumed click) already exist
-		var events = $._data($('.add-marker:last')[0], 'events');
-		// if not, adds new click handler
-		if(!events) {
-			var parentList = this.parentList;
-			$('.add-marker:last').click(function() {
-				vm.addPlace(name, place_id, location);
-				marker.setMap(null);
-				parentList.splice(parentList.indexOf(marker), 1);
-			});
-		}
+		var parentList = this.parentList;
+		$('.add-marker:last').click(function() {
+			vm.addPlace(name, place_id, location);
+			marker.setMap(null);
+			parentList.splice(parentList.indexOf(marker), 1);
+		});
 	}
 
 	// adds listeners relevant to the loaded API
