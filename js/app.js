@@ -373,12 +373,6 @@ function AJAXWindow(marker, vm, parentList) {
 		AJAXWindow.windowSwap(self);
 	});
 }
-// if specified type of content exists, loads that content
-AJAXWindow.prototype.loadContent = function(type) {
-	if(this.contentBlocks[type]) {
-		this.loadedHTML(this.contentBlocks[type]);
-	}
-};
 // opens infoWindow
 AJAXWindow.prototype.open = function() {
 	this.infoWindow.open(MAP, this.marker);
