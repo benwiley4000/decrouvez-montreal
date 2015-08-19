@@ -323,7 +323,7 @@ function AJAXWindow(marker, vm, parentList) {
 
 	// if this infoWindow belongs to a temp marker,
 	// adds option to add it to the map permanently
-	if(parentList) {
+	if(this.parentList) {
 		var $addMarker = $('<div class="add-marker">');
 		$addMarker.html('+ Add <strong>' + name + '</strong> to map');
 		$windowContent.append($addMarker);
@@ -332,25 +332,36 @@ function AJAXWindow(marker, vm, parentList) {
 	// initializes infoWindow with initial content
 	this.infoWindow = new GM.InfoWindow();
 
-	// declares observable content loader
-	this.loadedHTML = ko.observable();
+	// declares observable loaded API type
+	this.loadedAPI = ko.observable();
 	
-	// resets window content each time loadedHTML changes
-	this.loadedHTML.subscribe(function(newContent) {
+	// resets window content each time loadedAPI changes
+	this.loadedAPI.subscribe(function(newAPI) {
+		var newContent = newAPI ?
+			this.contentBlocks[newAPI] :
+			'<p><i>Place data loading...</i></p>';
 		$loadedContent.html(newContent);
 		this.infoWindow.setContent($windowContent[0]);
+		// if this is a temp marker, relaunches window
+		// to make sure add-marker listener is added
+		if(this.parentList) {
+			AJAXWindow.launch(this);
+		}
+		// adds listeners relevant to the loaded api
+		this.addAPIListeners();
 	}.bind(this));
-
-	// initializes placeholder html for loaded content
-	this.loadedHTML('<p><i>Place data loading...</i></p>');
 	
 	// initializes empty third-party API content blocks
+	// (contents change after completion of AJAX calls)
 	this.contentBlocks = {
 		streetview: null,
 		yelp: null,
 		wiki: null,
 		flickr: null
 	};
+
+	// initializes loaded API type as null
+	this.loadedAPI(null);
 
 	// listens for marker click, triggers windowSwap
 	var self = this;
@@ -386,6 +397,20 @@ AJAXWindow.prototype.launchStreetView = function() {
 		heading: 270,
 		pitch: 0
 	});
+};
+// adds listeners specific to the loaded API
+AJAXWindow.prototype.addAPIListeners = function() {
+	var api = this.loadedAPI();
+	if(!api) return;
+	if(api === "streetview") {
+		console.log(api);
+	} else if(api === "yelp") {
+		console.log(api);
+	} else if(api === "wiki") {
+		console.log(api);
+	} else if(api === "flickr") {
+		console.log(api);
+	}
 };
 // opens the specified window and closes the last, if open
 AJAXWindow.windowSwap = function(thisWindow) {
