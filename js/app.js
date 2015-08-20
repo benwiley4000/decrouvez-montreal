@@ -365,9 +365,15 @@ function AJAXWindow(marker, vm, parentList) {
 		$loadedContent.html(newContent);
 		// resets infoWindow content
 		this.infoWindow.setContent($windowContent[0]);
-		// marks window as "fresh" so listeners
-		// will be added on launch
-		this.fresh = true;
+		// checks if the window is currently open
+		if(this.isOpen()) {
+			// if so, adds relevant listeners
+			this.addListeners();
+		} else {
+			// marks window as "fresh" so listeners
+			// will be added on launch
+			this.fresh = true;
+		}
 	}.bind(this));
 	
 	// initializes empty third-party API content blocks
@@ -491,17 +497,22 @@ AJAXWindow.prototype.addListeners = function() {
 	// this is a temp marker
 	if(this.isTemp === true) {
 		var parentList = this.parentList;
-		$('.add-marker:last').click(function() {
-			vm.addPlace(name, place_id, location);
-			marker.setMap(null);
-			parentList.splice(parentList.indexOf(marker), 1);
-		});
+		// checks for events on add-marker div
+		var addMarkerEvents = $._data($('.add-marker:last')[0], 'events');
+		// if none, adds new add-marker click handler
+		if(!addMarkerEvents) {
+			$('.add-marker:last').click(function() {
+				vm.addPlace(name, place_id, location);
+				marker.setMap(null);
+				parentList.splice(parentList.indexOf(marker), 1);
+			});
+		}
 	}
 
 	// checks for events on nav arrows
-	var events = $._data(this.$leftNav[0], 'events');
+	var navEvents = $._data(this.$leftNav[0], 'events');
 	// if none, adds navigation arrow click listeners
-	if(!events) {
+	if(!navEvents) {
 		this.$leftNav.click(function() {
 			self.moveLeft();
 		});
@@ -514,9 +525,14 @@ AJAXWindow.prototype.addListeners = function() {
 	var api = this.loadedAPI();
 	if(!api) return;
 	if(api === "streetview") {
-		$('.streetview:last').click(function() {
-			self.launchStreetView();
-		});
+		// checks for events on streetview preview
+		var streetViewEvents = $._data($('.streetview:last')[0], 'events');
+		// if none, adds streetview click listener
+		if(!streetViewEvents) {
+			$('.streetview:last').click(function() {
+				self.launchStreetView();
+			});
+		}
 	} else if(api === "yelp") {
 		console.log(api);
 	} else if(api === "wiki") {
