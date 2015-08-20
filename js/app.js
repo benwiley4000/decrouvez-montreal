@@ -1,7 +1,6 @@
 var PLACE_NAME = "New York City, New York";
 var GM = google.maps;
 var MAP = new GM.Map(document.getElementById('map-canvas'));
-//var PANO = new GM.StreetViewPanorama(document.getElementById('pano'));
 var PANO = MAP.getStreetView();
 var PLACES = new GM.places.PlacesService(MAP);
 var STREET_VIEW = new google.maps.StreetViewService();
@@ -383,6 +382,7 @@ function AJAXWindow(marker, vm, parentList) {
 	//
 	// ...
 	this.fetchStreetView();
+	this.fetchWikipedia();
 
 	// listens for marker click, triggers windowSwap
 	var self = this;
@@ -491,6 +491,47 @@ AJAXWindow.prototype.fetchStreetView = function() {
 		location: loc,
 		radius: 50
 	}, processSVData);
+};
+
+AJAXWindow.prototype.fetchWikipedia = function() {
+	var name = this.marker.getTitle();
+
+	var self = this;
+	// wikipedia data callback invoked below
+	function processWikiData(data) {
+		var $wikiContent = $('<div class="wiki">');
+		$wikiContent.append('<h4>Wikipedia Results</h4>');
+		$list = $wikiContent.append('<ul class="wiki-list">');
+
+        var titles = data[1];
+        var links = data[3];
+        var i = 0;
+        // fill list with articles
+        for(var i = 0; i < links.length; i++) {
+            var title = titles[i];
+            var link = links[i];
+            $li = $list.append('<li></li>');
+            $li.append('<a href="' +
+				link + '" target="_blank">' +
+				title + '</a>');
+        }
+        // if list didn't fill, say so.
+        if(i === 0) {
+        	$wikiContent.append('<p><i>No relevant articles found.</i></p>');
+        }
+
+        self.contentBlocks.wiki = $wikiContent[0].outerHTML;
+        self.loadedAPI("wiki");
+	}
+
+	// query wikipedia for data relevant to place name
+	$.ajax({
+        url: 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' +
+        	name +
+        	'&format=json&callback=wikiCallback',
+        dataType: 'jsonp',
+        success: processWikiData
+    });
 };
 // opens specified window and closes last, if open
 AJAXWindow.windowSwap = function(thisWindow) {

@@ -170,7 +170,8 @@ body {
 	max-height: 190px;
 }
 
-.window-content h3 {
+.window-content h3,
+.window-content h4 {
 	margin-top: 0;
 }
 
