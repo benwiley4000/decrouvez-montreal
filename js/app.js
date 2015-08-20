@@ -22,7 +22,7 @@ var MAP = new GM.Map(document.getElementById('map-canvas'));
 var PANO = MAP.getStreetView();
 var PLACES = new GM.places.PlacesService(MAP);
 var STREET_VIEW = new google.maps.StreetViewService();
-var ZOOM = 10;
+var ZOOM = 9;
 
 // adds mapData to localStorage
 function store(mapData) {
@@ -219,6 +219,7 @@ ko.bindingHandlers.map = {
 			searchBox.addListener('places_changed', function() {
 				var places = searchBox.getPlaces();
 
+				// returns if there are no results
 				if (places.length === 0) {
 					return;
 				}
@@ -228,6 +229,11 @@ ko.bindingHandlers.map = {
 					marker.setMap(null);
 				});
 				resultsList = [];
+
+				// closes the open InfoWindow (if open)
+				if(vm.currWindow) {
+					vm.currWindow.close();
+				}
 
 				// for each place, gets the icon, name and location
 				places.forEach(function(place) {
