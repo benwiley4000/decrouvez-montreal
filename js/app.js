@@ -476,7 +476,6 @@ AJAXWindow.prototype.checkNavigation = function() {
 		this.$leftNav.css("display", "none");
 		this.$rightNav.css("display", "none");
 	}
-
 };
 // adds relevant listeners
 AJAXWindow.prototype.addListeners = function() {
@@ -499,13 +498,17 @@ AJAXWindow.prototype.addListeners = function() {
 		});
 	}
 
-	// adds navigation arrow listeners
-	this.$leftNav.click(function() {
-		self.moveLeft();
-	});
-	this.$rightNav.click(function() {
-		self.moveRight();
-	});
+	// checks for events on nav arrows
+	var events = $._data(this.$leftNav[0], 'events');
+	// if none, adds navigation arrow click listeners
+	if(!events) {
+		this.$leftNav.click(function() {
+			self.moveLeft();
+		});
+		this.$rightNav.click(function() {
+			self.moveRight();
+		});
+	}
 
 	// adds listeners relevant to the loaded API
 	var api = this.loadedAPI();
