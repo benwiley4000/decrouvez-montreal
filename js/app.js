@@ -315,6 +315,12 @@ function AJAXWindow(marker, vm, parentList) {
 	// appends infoWindow header
 	$windowContent.append('<h3>' + name + '</h3>');
 
+	// appends API content navigation arrows
+	this.$leftNav = $('<div class="move-left">');
+	$windowContent.append(this.$leftNav);
+	this.$rightNav = $('<div class="move-right">');
+	$windowContent.append(this.$rightNav);
+
 	// appends empty loaded content div
 	var $loadedContent = $('<div class="loaded-content">');
 	$windowContent.append($loadedContent);
@@ -413,6 +419,43 @@ AJAXWindow.prototype.launch = function() {
 		this.fresh = false;
 	}
 };
+// selects API content block to the left in
+// this.contentBlocks
+AJAXWindow.prototype.moveLeft = function() {
+	this.move(-1);
+};
+// selects API content block to the right in
+// this.contentBlocks
+AJAXWindow.prototype.moveRight = function() {
+	this.move(1);
+};
+// loads the API content at 'offset' places
+// away from the current content in this.contentBlocks
+AJAXWindow.prototype.move = function(offset) {
+	// fetches loaded keys array
+	var loaded = this.getLoadedKeys();
+	// uses the current index to find the index of
+	// the new selected API type
+	var currIndex = loaded.indexOf(this.loadedAPI());
+	var newIndex = currIndex + offset;
+	if(newIndex >= loaded.length) {
+		newIndex -= loaded.length;
+	} else if(newIndex < 0) {
+		newIndex += loaded.length;
+	}
+	// loads the key at the selected index
+	this.loadedAPI(loaded[newIndex]);
+};
+// returns new array only with loaded keys
+AJAXWindow.prototype.getLoadedKeys = function() {
+	var loaded = [];
+	for(var key in this.contentBlocks) {
+		if(this.contentBlocks[key]) {
+			loaded.push(key);
+		}
+	}
+	return loaded;
+};
 // launches streetview at the infoWindow's location
 AJAXWindow.prototype.launchStreetView = function() {
 	var location = this.marker.place.location;
@@ -423,6 +466,18 @@ AJAXWindow.prototype.launchStreetView = function() {
 		pitch: 0
 	});
 };
+// checks to see if display status should be changed
+// for navigation arrows
+AJAXWindow.prototype.checkNavigation = function() {
+	if(this.getLoadedKeys().length >= 2) {
+		this.$leftNav.css("display", "initial");
+		this.$rightNav.css("display", "initial");
+	} else {
+		this.$leftNav.css("display", "none");
+		this.$rightNav.css("display", "none");
+	}
+
+};
 // adds relevant listeners
 AJAXWindow.prototype.addListeners = function() {
 	var marker = this.marker;
@@ -431,6 +486,7 @@ AJAXWindow.prototype.addListeners = function() {
 	var name = marker.getTitle();
 	var place_id = markerPlace.placeId;
 	var location = markerPlace.location;
+	var self = this;
 
 	// adds click handler for add-marker button if
 	// this is a temp marker
@@ -443,10 +499,17 @@ AJAXWindow.prototype.addListeners = function() {
 		});
 	}
 
+	// adds navigation arrow listeners
+	this.$leftNav.click(function() {
+		self.moveLeft();
+	});
+	this.$rightNav.click(function() {
+		self.moveRight();
+	});
+
 	// adds listeners relevant to the loaded API
 	var api = this.loadedAPI();
 	if(!api) return;
-	var self = this;
 	if(api === "streetview") {
 		$('.streetview:last').click(function() {
 			self.launchStreetView();
@@ -483,6 +546,8 @@ AJAXWindow.prototype.fetchStreetView = function() {
 			lat + ',' + lng +
 			'"></div>';
 		self.loadedAPI("streetview");
+        // displays navigation arrows if necessary
+        self.checkNavigation();
 	}
 
 	// Checks for valid panorama then passes control
@@ -492,39 +557,45 @@ AJAXWindow.prototype.fetchStreetView = function() {
 		radius: 50
 	}, processSVData);
 };
-
+// fetches wikipedia data, and if successful
+// adds it to infowindow
 AJAXWindow.prototype.fetchWikipedia = function() {
 	var name = this.marker.getTitle();
 
 	var self = this;
 	// wikipedia data callback invoked below
 	function processWikiData(data) {
-		var $wikiContent = $('<div class="wiki">');
-		$wikiContent.append('<div class="content-title">Wikipedia Results</div>');
-		$list = $wikiContent.append('<div class="wiki-list">');
-
+		// exits now if no articles were returned.
+		if(data[1].length === 0) {
+			return;
+		}
         var titles = data[1];
         var links = data[3];
-        var i = 0;
-        // fill list with articles
+
+		var $wikiContent = $('<div class="wiki">');
+		$wikiContent.append('<div class="content-title">Wikipedia Results</div>');
+		$list = $('<div class="wiki-list">');
+		$wikiContent.append($list);
+
+        // fills list with articles
         for(var i = 0; i < links.length; i++) {
             var title = titles[i];
             var link = links[i];
-            $entry = $list.append('<div>');
+            $entry = $('<div>');
             $entry.append('<a href="' +
 				link + '" target="_blank">' +
 				title + '</a>');
-        }
-        // if list didn't fill, say so.
-        if(i === 0) {
-        	$wikiContent.append('<p><i>No relevant articles found.</i></p>');
+            $list.append($entry);
         }
 
+        // loads streetview
         self.contentBlocks.wiki = $wikiContent[0].outerHTML;
         self.loadedAPI("wiki");
+        // displays navigation arrows if necessary
+        self.checkNavigation();
 	}
 
-	// query wikipedia for data relevant to place name
+	// querys wikipedia for data relevant to place name
 	$.ajax({
         url: 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' +
         	name +

@@ -166,8 +166,8 @@ body {
 
 .window-content {
 	overflow: auto;
-	max-width: 300px;
-	max-height: 190px;
+	width: 300px;
+	height: 190px;
 }
 
 .window-content h3 {
@@ -183,4 +183,47 @@ body {
 .streetview {
 	cursor: pointer;
 	padding-bottom: 5px;
+}
+
+.wiki {
+	margin-left: 25px;
+}
+
+.wiki-list {
+	margin-left: 15px;
+}
+
+.move-left,
+.move-right {
+	background-color: rgba(0, 0, 0, 0.25);
+	padding: 10px;
+	font-size: 30px;
+	font-weight: bold;
+	position: absolute;
+	top: 40%;
+	font-family: 'Roboto';
+	color: #FFF;
+	cursor: pointer;
+	display: none;
+}
+
+.move-left:hover,
+.move-right:hover {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.move-left {
+	left: 0;
+}
+
+.move-right {
+	right: 22px;
+}
+
+.move-left:after {
+	content: '<';
+}
+
+.move-right:after {
+	content: '>';
 }
