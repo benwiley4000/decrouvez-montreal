@@ -333,13 +333,29 @@ function AJAXWindow(marker, vm, parentList) {
 
 	// declares observable loaded API type
 	this.loadedAPI = ko.observable();
+
+	// sets timeout that will be cleared when any
+	// APIs are loaded
+	var noAPI = setTimeout(function() {
+		// replace loaded content with message
+		// saying no relevant info was found
+		var msg = '<p><i>No relevant information found.</i></p>';
+		$loadedContent.html(msg);
+		this.infoWindow.setContent($windowContent[0]);
+	}.bind(this), 3000);
 	
 	// resets window content each time loadedAPI changes
 	this.loadedAPI.subscribe(function(newAPI) {
 		// sets new content
-		var newContent = newAPI ?
-			this.contentBlocks[newAPI] :
-			'<p><i>Place data loading...</i></p>';
+		var newContent;
+		if(newAPI) {
+			// removes timeout and sets new content
+			clearTimeout(noAPI);
+			newContent = this.contentBlocks[newAPI];
+		} else {
+			// sets content as loading message
+			newContent = '<p><i>Place data loading...</i></p>';
+		}
 		// adds content to loaded-content div
 		$loadedContent.html(newContent);
 		// resets infoWindow content
@@ -443,20 +459,38 @@ AJAXWindow.prototype.addListeners = function() {
 		console.log(api);
 	}
 };
-
+// fetches street view data, and if successful
+// adds it to infowindow
 AJAXWindow.prototype.fetchStreetView = function() {
 	var marker = this.marker;
 	var loc = marker.getPlace().location;
 	var lat = loc.lat();
 	var lng = loc.lng();
 
-	this.contentBlocks.streetview =
-		'<div><img class="streetview"' +
-		'src="https://maps.googleapis.com/maps/api/streetview?' +
-		'size=300x130&location=' +
-		lat + ',' + lng +
-		'"></div>';
-	this.loadedAPI("streetview");
+	var self = this;
+	// callback invoked below
+	function processSVData(data, status) {
+		// exits now if status isn't OK
+		if(status !== GM.StreetViewStatus.OK) {
+			return;
+		}
+		// otherwise, loads streetview
+		self.contentBlocks.streetview =
+			'<div><img class="streetview"' +
+			'src="https://maps.googleapis.com/maps/api/streetview?' +
+			'size=300x130&location=' +
+			lat + ',' + lng +
+			'"></div>';
+		self.loadedAPI("streetview");
+		console.log(self);
+	}
+
+	// Checks for valid panorama then passes control
+	// to callback
+	STREET_VIEW.getPanorama({
+		location: loc,
+		radius: 50
+	}, processSVData);
 };
 // opens specified window and closes last, if open
 AJAXWindow.windowSwap = function(thisWindow) {
@@ -474,6 +508,7 @@ AJAXWindow.windowSwap = function(thisWindow) {
 		thisWindow.launch();
 	}
 };
+// sets streetview to invisible
 AJAXWindow.hideStreetView = function() {
 	PANO.setVisible(false);
 };
