@@ -536,7 +536,7 @@ AJAXWindow.prototype.addListeners = function() {
 	} else if(api === "yelp") {
 		console.log(api);
 	} else if(api === "wiki") {
-		console.log(api);
+		//console.log(api);
 	} else if(api === "flickr") {
 		console.log(api);
 	}

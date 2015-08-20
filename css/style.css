@@ -165,9 +165,9 @@ body {
 }
 
 .window-content {
-	overflow: auto;
 	width: 300px;
 	height: 190px;
+	overflow: hidden;
 }
 
 .window-content h3 {
@@ -186,7 +186,10 @@ body {
 }
 
 .wiki {
+	overflow: auto;
 	padding-bottom: 5px;
+	height: 130px;
+	margin-right: 44px;
 }
 
 .wiki-list {
