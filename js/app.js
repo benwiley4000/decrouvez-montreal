@@ -1,4 +1,4 @@
-var PLACE_NAME = "New York City, New York";
+var PLACE_NAME = "San Francisco, California";
 var GM = google.maps;
 var MAP = new GM.Map(document.getElementById('map-canvas'));
 var PANO = MAP.getStreetView();
@@ -344,7 +344,7 @@ function AJAXWindow(marker, vm, parentList) {
 	var noAPI = setTimeout(function() {
 		// replace loaded content with message
 		// saying no relevant info was found
-		var msg = '<p><i>No relevant information found.</i></p>';
+		var msg = '<p class="pending"><i>No relevant information found.</i></p>';
 		$loadedContent.html(msg);
 		this.infoWindow.setContent($windowContent[0]);
 	}.bind(this), 3000);
@@ -359,7 +359,7 @@ function AJAXWindow(marker, vm, parentList) {
 			newContent = this.contentBlocks[newAPI];
 		} else {
 			// sets content as loading message
-			newContent = '<p><i>Place data loading...</i></p>';
+			newContent = '<p class="pending"><i>Place data loading...</i></p>';
 		}
 		// adds content to loaded-content div
 		$loadedContent.html(newContent);
@@ -593,7 +593,6 @@ AJAXWindow.prototype.fetchWikipedia = function() {
 
         // loads streetview
         self.contentBlocks.wiki = $wikiContent[0].outerHTML;
-        self.loadedAPI("wiki");
         // displays navigation arrows if necessary
         self.checkNavigation();
 	}

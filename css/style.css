@@ -186,7 +186,7 @@ body {
 }
 
 .wiki {
-	margin-left: 25px;
+	padding-bottom: 5px;
 }
 
 .wiki-list {
@@ -226,4 +226,10 @@ body {
 
 .move-right:after {
 	content: '>';
+}
+
+.pending,
+.add-marker,
+.wiki {
+	margin-left: 25px;
 }
