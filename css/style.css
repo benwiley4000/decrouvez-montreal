@@ -170,9 +170,14 @@ body {
 	max-height: 190px;
 }
 
-.window-content h3,
-.window-content h4 {
+.window-content h3 {
 	margin-top: 0;
+}
+
+.content-title {
+	font-weight: bold;
+	font-size: 1.05em;
+	margin-bottom: .2em;
 }
 
 .streetview {

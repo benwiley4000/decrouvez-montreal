@@ -500,8 +500,8 @@ AJAXWindow.prototype.fetchWikipedia = function() {
 	// wikipedia data callback invoked below
 	function processWikiData(data) {
 		var $wikiContent = $('<div class="wiki">');
-		$wikiContent.append('<h4>Wikipedia Results</h4>');
-		$list = $wikiContent.append('<ul class="wiki-list">');
+		$wikiContent.append('<div class="content-title">Wikipedia Results</div>');
+		$list = $wikiContent.append('<div class="wiki-list">');
 
         var titles = data[1];
         var links = data[3];
@@ -510,8 +510,8 @@ AJAXWindow.prototype.fetchWikipedia = function() {
         for(var i = 0; i < links.length; i++) {
             var title = titles[i];
             var link = links[i];
-            $li = $list.append('<li></li>');
-            $li.append('<a href="' +
+            $entry = $list.append('<div>');
+            $entry.append('<a href="' +
 				link + '" target="_blank">' +
 				title + '</a>');
         }
