@@ -320,12 +320,6 @@ function AJAXWindow(marker, vm, parentList) {
 	var $loadedContent = $('<div class="loaded-content">');
 	$windowContent.append($loadedContent);
 
-	// ajax calls
-	//
-	// ...
-	//
-	// ...
-
 	// if this infoWindow belongs to a temp marker,
 	// adds option to add it to the map permanently
 	if(this.isTemp) {
@@ -366,6 +360,13 @@ function AJAXWindow(marker, vm, parentList) {
 
 	// initializes loaded API type as null
 	this.loadedAPI(null);
+
+	// ajax calls
+	//
+	// ...
+	//
+	// ...
+	this.fetchStreetView();
 
 	// listens for marker click, triggers windowSwap
 	var self = this;
@@ -429,8 +430,11 @@ AJAXWindow.prototype.addListeners = function() {
 	// adds listeners relevant to the loaded API
 	var api = this.loadedAPI();
 	if(!api) return;
+	var self = this;
 	if(api === "streetview") {
-		console.log(api);
+		$('.streetview:last').click(function() {
+			self.launchStreetView();
+		});
 	} else if(api === "yelp") {
 		console.log(api);
 	} else if(api === "wiki") {
@@ -438,6 +442,21 @@ AJAXWindow.prototype.addListeners = function() {
 	} else if(api === "flickr") {
 		console.log(api);
 	}
+};
+
+AJAXWindow.prototype.fetchStreetView = function() {
+	var marker = this.marker;
+	var loc = marker.getPlace().location;
+	var lat = loc.lat();
+	var lng = loc.lng();
+
+	this.contentBlocks.streetview =
+		'<div><img class="streetview"' +
+		'src="https://maps.googleapis.com/maps/api/streetview?' +
+		'size=300x130&location=' +
+		lat + ',' + lng +
+		'"></div>';
+	this.loadedAPI("streetview");
 };
 // opens specified window and closes last, if open
 AJAXWindow.windowSwap = function(thisWindow) {

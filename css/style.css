@@ -163,3 +163,17 @@ body {
 .add-marker {
 	cursor: pointer;
 }
+
+.window-content {
+	overflow: auto;
+	max-width: 300px;
+	max-height: 190px;
+}
+
+.window-content h3 {
+	margin-top: 0;
+}
+
+.streetview {
+	cursor: pointer;
+}
