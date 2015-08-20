@@ -1,3 +1,21 @@
+/*
+ * Ben Wiley
+ * 2015
+ *
+ * Google map initialization based in part on sample
+ * code found at https://goo.gl/GsKXwE and at
+ * https://goo.gl/2a9tjC
+ * 
+ * Marker search implementation based on sample code
+ * found at https://goo.gl/bzucGh
+ * 
+ * Street view overlay implementation based on sample
+ * code found at https://goo.gl/7PjIy4
+ * 
+ * MediaWiki API Docs can be found at https://goo.gl/fBmxYC
+ * 
+ */
+
 var PLACE_NAME = "San Francisco, California";
 var GM = google.maps;
 var MAP = new GM.Map(document.getElementById('map-canvas'));
@@ -336,6 +354,9 @@ function AJAXWindow(marker, vm, parentList) {
 	// initializes infoWindow with initial content
 	this.infoWindow = new GM.InfoWindow();
 
+	// set to true until mouse enter/exit listeners added
+	this.isNew = true;
+
 	// declares observable loaded API type
 	this.loadedAPI = ko.observable();
 
@@ -492,6 +513,24 @@ AJAXWindow.prototype.addListeners = function() {
 	var place_id = markerPlace.placeId;
 	var location = markerPlace.location;
 	var self = this;
+
+	// disables map scrolling/dragging inside InfoWindow
+	// based on solution found at http://goo.gl/dDtIrh
+	if(this.isNew) {
+		$(".gm-style-iw").mouseenter(function() {
+			MAP.setOptions({
+				draggable: false,
+				scrollwheel: false
+			});
+		});
+		$(".gm-style-iw").mouseleave(function() {
+			MAP.setOptions({
+				draggable: true,
+				scrollwheel: true
+			});
+		});
+		this.isNew = false;
+	}
 
 	// adds click handler for add-marker button if
 	// this is a temp marker
