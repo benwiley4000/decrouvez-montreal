@@ -477,12 +477,12 @@ AJAXWindow.prototype.fetchStreetView = function() {
 		// otherwise, loads streetview
 		self.contentBlocks.streetview =
 			'<div><img class="streetview"' +
+			'title="Google Street View"' +
 			'src="https://maps.googleapis.com/maps/api/streetview?' +
 			'size=300x130&location=' +
 			lat + ',' + lng +
 			'"></div>';
 		self.loadedAPI("streetview");
-		console.log(self);
 	}
 
 	// Checks for valid panorama then passes control
