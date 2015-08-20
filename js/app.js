@@ -1,4 +1,4 @@
-var PLACE_NAME = "Montreal, Quebec, Canada";
+var PLACE_NAME = "New York City, New York";
 var GM = google.maps;
 var MAP = new GM.Map(document.getElementById('map-canvas'));
 //var PANO = new GM.StreetViewPanorama(document.getElementById('pano'));

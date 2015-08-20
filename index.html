@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-	<title>Découvrez Montréal</title>
+	<title>Dig Up New York</title>
 	<link href="css/style.css" rel="stylesheet" type="text/css">
 	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
     <script src="js/libs/jquery-1.11.3.min.js"></script>
@@ -13,16 +13,16 @@
 </head>
 <body>
 	<div id="content">
-		<div id="headline">Découvrez Montréal</div>
-		<input id="pac-input" class="controls" type="text" placeholder="Recherchez de Nouveaux Lieux...">
+		<div id="headline">Dig Up New York</div>
+		<input id="pac-input" class="controls" type="text" placeholder="Search for New Spots...">
 		<div id="map-canvas" data-bind="map:mapData"></div>
 		<div id="sidebar">
-			<div id="sidebar-header">Vos Endroits</div>
+			<div id="sidebar-header">Your Places</div>
 			<div id="marker-list" data-bind="foreach: mapData.list">
 				<div class="marker-entry">
 					<div class="marker-name"
 						data-bind="click: function() {
-							AJAXWindow.windowSwap($parent.markers[$index()].infoWindow);
+							AJAXWindow.windowSwap($parent.ymarkers[$index()].infoWindow);
 						},
 						text: num > 1 ? name + ' (' + num + ')' : name">
 					</div>
