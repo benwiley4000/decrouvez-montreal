@@ -162,6 +162,7 @@ body {
 
 .add-marker {
 	cursor: pointer;
+	padding-top: 5px;
 }
 
 .window-content {
@@ -182,12 +183,11 @@ body {
 
 .streetview {
 	cursor: pointer;
-	padding-bottom: 5px;
+	line-height: 0;
 }
 
 .wiki {
 	overflow: auto;
-	padding-bottom: 5px;
 	height: 130px;
 	margin-right: 44px;
 }
