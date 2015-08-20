@@ -354,7 +354,7 @@ function AJAXWindow(marker, vm, parentList) {
 	// adds option to add it to the map permanently
 	if(this.isTemp) {
 		var $addMarker = $('<div class="add-marker">');
-		$addMarker.html('+ Add <strong>' + name + '</strong> to map');
+		$addMarker.html('+ Add marker to map');
 		$windowContent.append($addMarker);
 	}
 
