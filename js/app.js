@@ -185,7 +185,8 @@ ko.bindingHandlers.map = {
 					vm.updateStorage();
 					MAP.setOptions({
 						center: mapData.centerData.location,
-						zoom: ZOOM
+						zoom: ZOOM,
+						disableDefaultUI: true
 					});
 					// set up the search bar
 					searchSetUp();
