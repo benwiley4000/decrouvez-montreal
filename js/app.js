@@ -202,12 +202,13 @@ ko.bindingHandlers.map = {
 		// sets up the search bar on the map
 		function searchSetUp() {
 			var input = document.getElementById('pac-input');
-			var searchBox = new GM.places.SearchBox(input);
+			window.searchBox = new GM.places.SearchBox(input);
 			MAP.controls[GM.ControlPosition.TOP_LEFT].push(input);
 			searchBox.setBounds(mapData.centerData.viewport);
 			
 			// clicking on map causes search to lose focus
 			$('#pac-input').click(function(e) {
+				// won't apply to clicking on input box itself
 				e.stopPropagation();
 			});
 			$('#map-canvas').click(function() {
