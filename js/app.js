@@ -6,8 +6,8 @@
  * code found at https://goo.gl/GsKXwE and at
  * https://goo.gl/2a9tjC
  * 
- * Marker search implementation based on sample code
- * found at https://goo.gl/bzucGh
+ * Marker search implementation (for new markers) based
+ * on sample code found at https://goo.gl/bzucGh
  * 
  * Street view overlay implementation based on sample
  * code found at https://goo.gl/7PjIy4
