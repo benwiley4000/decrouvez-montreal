@@ -17,7 +17,14 @@
 		<input id="pac-input" class="controls" type="text"
 			placeholder="Search for New Spots..."
 			data-bind="textInput: searchText,
-			           event: {keypress: onEnter}">
+		               event: {keypress: onEnter}">
+		<div id="clear-btn"
+			data-bind="visible: hasQuery, click: function() {
+				clearQuery();
+				// don't lose focus!!
+				$('#pac-input').focus();
+			}">
+		</div>
 		<div id="loading" data-bind="visible: loading">Loading...</div>
 		<div id="map-canvas" data-bind="map: mapData"></div>
 		<div id="sidebar">
@@ -36,7 +43,7 @@
 		</div>
 	</div>
 	<script>
-		// until Google map has loaded
+		// until Google map has loaded, hide these elements
 		$('#headline').hide();
 		$('#pac-input').hide();
 		$('#sidebar').hide();

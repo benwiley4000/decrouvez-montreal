@@ -110,9 +110,13 @@ function ViewModel() {
 	// initializes empty search string
 	self.searchText = ko.observable("");
 
+	// returns whether there is a search query present
+	self.hasQuery = ko.computed(function() {
+		return self.searchText().length > 0;
+	});
+
 	// indicates whether loading is in process
 	self.loading = ko.observable(false);
-
 
 	// initializes empty array of Marker objects
 	self.markers = [];
@@ -159,6 +163,13 @@ function ViewModel() {
 			return place.place_id === place_id;
 		});
 		self.updateStorage();
+	};
+
+	// clears the current query
+	self.clearQuery = function() {
+		self.searchText("");
+		self.filter();
+		// todo: clear temp markers
 	};
 
 	// called when the Enter key is pressed on search
@@ -261,7 +272,7 @@ ko.bindingHandlers.map = {
 			});
 			// set up the search bar
 			searchSetUp();
-			// show the sidebar
+			// show these elements
 			$('#headline').show();
 			$('#pac-input').show();
 			$('#sidebar').show();
@@ -281,7 +292,7 @@ ko.bindingHandlers.map = {
 					});
 					// set up the search bar
 					searchSetUp();
-					// show the sidebar
+					// show these elements
 					$('#headline').show();
 					$('#pac-input').show();
 					$('#sidebar').show();
