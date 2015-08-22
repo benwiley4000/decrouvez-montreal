@@ -11,6 +11,9 @@
  * 
  * Street view overlay implementation based on sample
  * code found at https://goo.gl/7PjIy4
+ *
+ * Search box knockout binding based on code found in
+ * StackOverflow answer at http://goo.gl/70ntzo
  * 
  * MediaWiki API Docs can be found at https://goo.gl/fBmxYC
  * 
@@ -22,7 +25,7 @@ var MAP = new GM.Map(document.getElementById('map-canvas'));
 var PANO = MAP.getStreetView();
 var PLACES = new GM.places.PlacesService(MAP);
 var STREET_VIEW = new google.maps.StreetViewService();
-var ZOOM = 9;
+var ZOOM = 10;
 
 // adds mapData to localStorage
 function store(mapData) {
@@ -104,8 +107,32 @@ function ViewModel() {
 	// either initializes new mapData object, or pulls one from localStorage
 	self.mapData = initModel();
 
-	// initializes empty array of Marker objects.
+	// initializes empty search string
+	self.searchText = ko.observable("");
+
+	// determines whether loading indicator should show
+	self.loading = ko.observable(true);
+
+	// initializes empty array of Marker objects
 	self.markers = [];
+
+
+	// initializes empty observableArray of (selected)
+	// Marker objects
+	self.selectedMarkers = ko.observableArray(self.markers);
+
+	// filters markers visible on map each time
+	// array contents change
+	self.selectedMarkers.subscribe(function(data) {
+		self.markers.forEach(function(marker) {
+			marker.setMap(null);
+		});
+		data.forEach(function(marker) {
+			marker.setMap(MAP);
+		});
+		// hides loading indicator
+		self.loading(false);
+	});
 
 	// initializes current AJAXWindow as null
 	self.currWindow = null;
@@ -135,6 +162,63 @@ function ViewModel() {
 		self.updateStorage();
 	};
 
+	// called when the Enter key is pressed on search
+	self.onEnter = function(d, e) {
+		if(e.keyCode === 13) { // enter
+			self.filter();
+		}
+		return true;
+	};
+
+	// called to filter markers based on current
+	// search text
+	self.filter = function() {
+		if(self.searchText() === "") {
+			self.selectedMarkers(self.markers);
+		} else {
+			// start with no matches
+			self.selectedMarkers([]);
+			// activates loading indicator
+			self.loading(true);
+			// search for matches
+			PLACES.radarSearch({
+				keyword: self.searchText(),
+				bounds: self.mapData.centerData.viewport
+			}, matchData);
+		}
+	}
+
+	// sifts through radar search results and
+	// adds existing markers with matches to
+	// selectedMarkers observableArray
+	function matchData(results, status) {
+		// if search status is bad, returns
+		if(status !== GM.places.PlacesServiceStatus.OK) {
+			return;
+		}
+		// otherwise, continues
+		self.markers.forEach(function(marker) {
+			var matched = false;
+			for(var i = 0; i < results.length; i++) {
+				// if Place IDs match, adds marker
+				// to selected marker array
+				if(results[i].place_id === marker.place.placeId) {
+					self.selectedMarkers.push(marker);
+				} else {
+					var _name = marker.getTitle().toLowerCase();
+					var _search = self.searchText().toLowerCase();
+					// check if searchText is substring
+					// of marker place name
+					console.log("hey");
+					if(name.indexOf(search) > -1) {
+						console.log("ho");
+						self.selectedMarkers.push(marker);
+					}
+				}
+			}
+		});
+	}
+
 	// when called, returns true if given place is already
 	// pinned on map, false otherwise
 	self.pinned = function(place_id) {
@@ -145,12 +229,12 @@ function ViewModel() {
 			}
 		}
 		return false;
-	}
+	};
 
 	// saves current state of mapData to localStorage
 	self.updateStorage = function() {
 		store(self.mapData);
-	}
+	};
 };
 
 // specifies custom binding for map
@@ -289,7 +373,6 @@ ko.bindingHandlers.map = {
 
 				// creates marker
 				var marker = new GM.Marker({
-					"map": MAP,
 					"icon": "images/marker.png",
 					"title": place.name,
 					"place": {
@@ -301,8 +384,12 @@ ko.bindingHandlers.map = {
 				// creates info window
 				marker.infoWindow = new AJAXWindow(marker, vm);
 
-				// adds marker to permanent list
+				// adds place data as property of marker
+				marker.data = place;
+
+				// adds marker to lists
 				markers.push(marker);
+				vm.selectedMarkers.push(marker);
 			}
 		}
 
@@ -314,6 +401,7 @@ ko.bindingHandlers.map = {
 				if(!place || place.place_id !== marker.getPlace().placeId) {
 					marker.setMap(null);
 					markers.splice(i, 1);
+					vm.selectedMarkers.remove(marker);
 					return;
 				}
 			}

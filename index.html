@@ -14,17 +14,21 @@
 <body>
 	<div id="content">
 		<div id="headline">Dig Up San Francisco</div>
-		<input id="pac-input" class="controls" type="text" placeholder="Search for New Spots...">
-		<div id="map-canvas" data-bind="map:mapData"></div>
+		<input id="pac-input" class="controls" type="text"
+			placeholder="Search for New Spots..."
+			data-bind="textInput: searchText,
+			           event: {keypress: onEnter}">
+		<div id="loading" data-bind="visible: loading">Loading...</div>
+		<div id="map-canvas" data-bind="map: mapData"></div>
 		<div id="sidebar">
 			<div id="sidebar-header">Your Places</div>
-			<div id="marker-list" data-bind="foreach: mapData.list">
+			<div id="marker-list" data-bind="foreach: selectedMarkers">
 				<div class="marker-entry">
 					<div class="marker-name"
 						data-bind="click: function() {
-							AJAXWindow.windowSwap($parent.markers[$index()].infoWindow);
+							AJAXWindow.windowSwap(infoWindow);
 						},
-						text: num > 1 ? name + ' (' + num + ')' : name">
+						text: data.num > 1 ? data.name + ' (' + data.num + ')' : data.name">
 					</div>
 					<div class="delete" data-bind="click: function() {$parent.removePlace(place_id)}"></div>
 				</div>

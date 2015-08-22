@@ -27,6 +27,18 @@ body {
 	opacity: 0.5;
 }
 
+#loading {
+	font-size: 30px;
+	font-weight: bold;
+	position: absolute;
+	top: 20px;
+	left: calc(80% - 200px);
+	padding: 5px;
+	background-color: #FFF;
+	color: #000;
+	z-index: 2;
+}
+
 #map-canvas {
 	height: calc(100% - 20px);
 	width: calc(80% - 50px);
