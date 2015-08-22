@@ -110,12 +110,12 @@ function ViewModel() {
 	// initializes empty search string
 	self.searchText = ko.observable("");
 
-	// determines whether loading indicator should show
-	self.loading = ko.observable(true);
+	// indicates whether loading is in process
+	self.loading = ko.observable(false);
+
 
 	// initializes empty array of Marker objects
 	self.markers = [];
-
 
 	// initializes empty observableArray of (selected)
 	// Marker objects
@@ -130,8 +130,6 @@ function ViewModel() {
 		data.forEach(function(marker) {
 			marker.setMap(MAP);
 		});
-		// hides loading indicator
-		self.loading(false);
 	});
 
 	// initializes current AJAXWindow as null
@@ -173,14 +171,18 @@ function ViewModel() {
 	// called to filter markers based on current
 	// search text
 	self.filter = function() {
-		if(self.searchText() === "") {
+		if(!self.markers.length) {
+			// returns if there are no markers to filter
+			return;
+		} else if(self.searchText() === "") {
+			// don't filter without a query
 			self.selectedMarkers(self.markers);
 		} else {
-			// start with no matches
+			// starts with no matches
 			self.selectedMarkers([]);
-			// activates loading indicator
+			// indicates loading has started
 			self.loading(true);
-			// search for matches
+			// searches for matches
 			PLACES.radarSearch({
 				keyword: self.searchText(),
 				bounds: self.mapData.centerData.viewport
@@ -199,24 +201,26 @@ function ViewModel() {
 		// otherwise, continues
 		self.markers.forEach(function(marker) {
 			var matched = false;
-			for(var i = 0; i < results.length; i++) {
+			for(var i = 0; !matched && i < results.length; i++) {
 				// if Place IDs match, adds marker
 				// to selected marker array
 				if(results[i].place_id === marker.place.placeId) {
 					self.selectedMarkers.push(marker);
+					matched = true;
 				} else {
 					var _name = marker.getTitle().toLowerCase();
 					var _search = self.searchText().toLowerCase();
 					// check if searchText is substring
 					// of marker place name
-					console.log("hey");
-					if(name.indexOf(search) > -1) {
-						console.log("ho");
+					if(_name.indexOf(_search) > -1) {
 						self.selectedMarkers.push(marker);
+						matched = true;
 					}
 				}
 			}
 		});
+		// indicates loading is finished
+		self.loading(false);
 	}
 
 	// when called, returns true if given place is already
