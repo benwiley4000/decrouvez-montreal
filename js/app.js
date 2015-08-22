@@ -614,7 +614,7 @@ AJAXWindow.prototype.addListeners = function() {
 	var location = markerPlace.location;
 	var self = this;
 
-	// disables map scrolling/dragging inside InfoWindow
+	// disables map zooming/dragging inside InfoWindow
 	// based on solution found at http://goo.gl/dDtIrh
 	if(this.isNew) {
 		$(".gm-style-iw").mouseenter(function() {
@@ -644,6 +644,13 @@ AJAXWindow.prototype.addListeners = function() {
 				vm.addPlace(name, place_id, location);
 				marker.setMap(null);
 				parentList.splice(parentList.indexOf(marker), 1);
+				// re-enables dragging and zooming, which
+				// have been disabled upon entering the
+				// infowindow to select this option
+				MAP.setOptions({
+					draggable: true,
+					scrollwheel: true
+				});
 			});
 		}
 	}
