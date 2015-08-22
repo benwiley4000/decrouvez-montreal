@@ -137,6 +137,9 @@ function ViewModel() {
 		});
 	});
 
+	// initiaizes empty array of marker search results
+	self.resultsList = [];
+
 	// initializes current AJAXWindow as null
 	self.currWindow = null;
 
@@ -169,7 +172,17 @@ function ViewModel() {
 	self.clearQuery = function() {
 		self.searchText("");
 		self.filter();
-		// todo: clear temp markers
+		self.clearResults();
+	};
+
+	// clears all search result markers off the map
+	// and clears the containing array
+	self.clearResults = function() {
+		// removes results markers from map
+		self.resultsList.forEach(function(marker) {
+			marker.setMap(null);
+		});
+		self.resultsList.length = 0;
 	};
 
 	// called when the Enter key is pressed on search
@@ -320,9 +333,10 @@ ko.bindingHandlers.map = {
 			});
 			
 			// initializes empty array of marker results
-			var resultsList = [];
+			var resultsList = vm.resultsList;
 			// listens for changes in the searchbox places
 			searchBox.addListener('places_changed', function() {
+				// gets place results
 				var places = searchBox.getPlaces();
 
 				// returns if there are no results
@@ -330,11 +344,8 @@ ko.bindingHandlers.map = {
 					return;
 				}
 
-				// removes old markers
-				resultsList.forEach(function(marker) {
-					marker.setMap(null);
-				});
-				resultsList = [];
+				// clears old marker results off map
+				vm.clearResults();
 
 				// closes the open InfoWindow (if open)
 				if(vm.currWindow) {
