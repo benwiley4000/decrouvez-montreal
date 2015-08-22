@@ -262,6 +262,8 @@ ko.bindingHandlers.map = {
 			// set up the search bar
 			searchSetUp();
 			// show the sidebar
+			$('#headline').show();
+			$('#pac-input').show();
 			$('#sidebar').show();
 		}
 
@@ -280,6 +282,8 @@ ko.bindingHandlers.map = {
 					// set up the search bar
 					searchSetUp();
 					// show the sidebar
+					$('#headline').show();
+					$('#pac-input').show();
 					$('#sidebar').show();
 				}
 			};
