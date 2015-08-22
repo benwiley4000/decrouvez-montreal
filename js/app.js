@@ -118,8 +118,9 @@ function ViewModel() {
 	self.markers = [];
 
 	// initializes empty observableArray of (selected)
-	// Marker objects
-	self.selectedMarkers = ko.observableArray(self.markers);
+	// Marker objects with shallow copy of markers array
+	self.selectedMarkers =
+		ko.observableArray(self.markers.slice(0));
 
 	// filters markers visible on map each time
 	// array contents change
