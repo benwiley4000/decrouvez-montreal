@@ -223,7 +223,7 @@ function ViewModel() {
 				bounds: self.mapData.centerData.viewport
 			}, matchData);
 		}
-	}
+	};
 
 	// sifts through radar search results and
 	// adds existing markers with matches to
@@ -243,11 +243,10 @@ function ViewModel() {
 					self.selectedMarkers.push(marker);
 					matched = true;
 				} else {
-					var _name = marker.getTitle().toLowerCase();
-					var _search = self.searchText().toLowerCase();
-					// check if searchText is substring
-					// of marker place name
-					if(_name.indexOf(_search) > -1) {
+					var name = marker.getTitle();
+					var query = self.searchText();
+					// checks if query matches marker title
+					if(queryMatches(query, name)) {
 						self.selectedMarkers.push(marker);
 						matched = true;
 					}
@@ -256,6 +255,23 @@ function ViewModel() {
 		});
 		// indicates loading is finished
 		self.loading(false);
+	}
+
+	// returns whether each term in given query (excluding
+	// trailing s's) is substring of target string
+	function queryMatches(query, target) {
+		query = query.toLowerCase();
+		target = target.toLowerCase();
+		var terms = query.split(" ");
+		for(var i = 0; i < terms.length; i++) {
+			var term = terms[i].endsWith('s') ?
+				terms[i].slice(0, -1) :
+				terms[i];
+			if(target.indexOf(term) === -1) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	// when called, returns true if given place is already
