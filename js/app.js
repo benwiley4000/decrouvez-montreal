@@ -133,8 +133,15 @@ function ViewModel() {
 	// array contents change
 	self.selectedMarkers.subscribe(function(data) {
 		self.markers.forEach(function(marker) {
+			// closes the marker's window, if the
+			// new query isn't empty
+			if(self.searchText().length) {
+				marker.infoWindow.close();
+			}
+			// removes marker from map
 			marker.setMap(null);
 		});
+		// adds each selected marker to map
 		data.forEach(function(marker) {
 			marker.setMap(MAP);
 		});
