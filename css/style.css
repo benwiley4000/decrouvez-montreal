@@ -27,16 +27,25 @@ body {
 	opacity: 0.5;
 }
 
-#loading {
-	font-size: 30px;
+#loading,
+#cant-connect {
 	font-weight: bold;
 	position: absolute;
 	top: 20px;
-	left: calc(80% - 200px);
 	padding: 5px;
-	background-color: #FFF;
-	color: #000;
 	z-index: 2;
+	background-color: #000;
+	color: #FFF;
+}
+
+#loading {
+	font-size: 30px;
+	left: calc(80% - 200px);
+}
+
+#cant-connect {
+	font-size: 18px;
+	left: calc(80% - 400px);
 }
 
 #map-canvas {

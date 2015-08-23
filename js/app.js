@@ -121,6 +121,10 @@ function ViewModel() {
 	// indicates whether loading is in process
 	self.loading = ko.observable(false);
 
+	// indicates whether app is having trouble reaching
+	// the server
+	self.cantConnect = ko.observable(false);
+
 	// bool temporarily set to true whenever a search
 	// is fired with the enter key, to keep the
 	// SearchBox listener routine from calling the
@@ -225,20 +229,29 @@ function ViewModel() {
 	// called to filter markers based on current
 	// search text
 	self.filter = function() {
-		if(!self.markers.length) {
+		if(!self.markers.length) {	
+			if(self.searchText() === "") {
+				self.clearResults();
+			}
 			// returns if there are no markers to filter
 			return;
 		} else if(self.searchText() === "") {
+			self.clearResults();
 			// don't filter without a query
 			self.selectedMarkers(self.markers);
 		} else {
 			// indicates loading has started
 			self.loading(true);
 
+			// gets rid of cant connect message (for now)
+			// if visible
+			self.cantConnect(false);
+
 			// timeout calls matchData function w/o
 			// server query results if search hasn't
 			// returned after 5 seconds.
 			var matchAnyway = setTimeout(function() {
+				self.cantConnect(true);
 				matchData(null, "bad");
 			}, 5000);
 
@@ -800,12 +813,6 @@ AJAXWindow.prototype.addListeners = function() {
 				self.launchStreetView();
 			});
 		}
-	} else if(api === "yelp") {
-		console.log(api);
-	} else if(api === "wiki") {
-		//console.log(api);
-	} else if(api === "flickr") {
-		console.log(api);
 	}
 };
 // fetches street view data, and if successful
