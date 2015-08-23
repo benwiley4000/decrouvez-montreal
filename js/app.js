@@ -225,52 +225,79 @@ function ViewModel() {
 		}
 	};
 
-	// sifts through radar search results and
-	// adds existing markers with matches to
-	// selectedMarkers observableArray
+	// checks to see if each stored marker should be
+	// displayed for the current search query, w/ 3 steps:
+	// A) See if query terms are all substrings of marker
+	// title.
+	// B) See if query terms are all substrings of any one
+	// of the marker's associated foursquare categories
+	// (if those are available).
+	// C) Finally, iterate through the 200 radar search
+	// results to see if any match the marker's place_id.
+	// :: If a match is found, the marker is selected and
+	// :: the process starts over for the next marker.
 	function matchData(results, status) {
-		// if search status is bad, returns
-		if(status !== GM.places.PlacesServiceStatus.OK) {
-			return;
-		}
-		// otherwise, continues
+		// splits query into array of lowercase terms,
+		// without trailing s's (to allow plurals)
+		var terms = self.searchText()
+					.toLowerCase()
+					.split(" ")
+					.map(function(term) {
+						return term.replace(/s$/, "");
+					});
+		
+		// checks each of the stored markers for matches
 		self.markers.forEach(function(marker) {
-			var matched = false;
-			for(var i = 0; !matched && i < results.length; i++) {
-				// if Place IDs match, adds marker
-				// to selected marker array
+			// checks if terms match this marker's title
+			if(termsMatch(terms, marker.getTitle())) {
+				self.selectedMarkers.push(marker);
+				return;
+			}
+
+			// checks if terms match any of this marker's
+			// associated foursquare categories
+			var categories = marker.categories;
+			for(var i = 0; i < categories.length; i++) {
+				if(termsMatch(terms, categories[i])) {
+					self.selectedMarkers.push(marker);
+					return;
+				}
+			}
+
+			// ensures it's safe to proceed to radar search
+			// results
+			if(status !== GM.places.PlacesServiceStatus.OK) {
+				return;
+			}
+
+			// checks if any of the radar search results
+			// has a place_id matching this marker
+			for(var i = 0; i < results.length; i++) {
 				if(results[i].place_id === marker.place.placeId) {
 					self.selectedMarkers.push(marker);
-					matched = true;
-				} else {
-					var name = marker.getTitle();
-					var query = self.searchText();
-					// checks if query matches marker title
-					if(queryMatches(query, name)) {
-						self.selectedMarkers.push(marker);
-						matched = true;
-					}
+					return;
 				}
 			}
 		});
+
 		// indicates loading is finished
 		self.loading(false);
 	}
 
-	// returns whether each term in given query (excluding
-	// trailing s's) is substring of target string
-	function queryMatches(query, target) {
-		query = query.toLowerCase();
+	// returns whether each give search term is substring
+	// of target string
+	function termsMatch(terms, target) {
+		// terms assumed lowercase; make target lowercase
 		target = target.toLowerCase();
-		var terms = query.split(" ");
+		// iterate through terms to to ensure they
+		// all match
 		for(var i = 0; i < terms.length; i++) {
-			var term = terms[i].endsWith('s') ?
-				terms[i].slice(0, -1) :
-				terms[i];
-			if(target.indexOf(term) === -1) {
+			if(target.indexOf(terms[i]) === -1) {
+				// if there is a mismatch, return false
 				return false;
 			}
 		}
+		// if we get here, all the terms match
 		return true;
 	}
 
@@ -802,6 +829,13 @@ AJAXWindow.prototype.fetchFoursquare = function() {
 		if(categories.length > 0 && categories[0].name) {
 			var tagline = '<i>' + categories[0].name + '</i>';
 			$info.append(tagline);
+
+			// adds as property of marker an array filled
+			// with category names (but none of the other
+			// category-related stuff)
+			marker.categories = categories.map(function(category) {
+				return category.name;
+			});
 		}
 
 		// appends menu and/or website, if available
