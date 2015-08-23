@@ -200,6 +200,9 @@ body {
 
 .window-content h3 {
 	margin-top: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .content-title {
