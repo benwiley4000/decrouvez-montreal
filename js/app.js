@@ -528,20 +528,16 @@ function AJAXWindow(marker, vm, parentList) {
 	// (contents change after completion of AJAX calls)
 	this.contentBlocks = {
 		streetview: null,
-		yelp: null,
-		wiki: null,
-		flickr: null
+		foursquare: null,
+		wiki: null
 	};
 
 	// initializes loaded API type as null
 	this.loadedAPI(null);
 
 	// ajax calls
-	//
-	// ...
-	//
-	// ...
 	this.fetchStreetView();
+	this.fetchFoursquare();
 	this.fetchWikipedia();
 
 	// listens for marker click, triggers windowSwap
@@ -749,6 +745,127 @@ AJAXWindow.prototype.fetchStreetView = function() {
 		radius: 50
 	}, processSVData);
 };
+// fetches from foursquare, and if successful adds
+// it to infowindow
+AJAXWindow.prototype.fetchFoursquare = function() {
+	var marker = this.marker;
+	var name = marker.getTitle();
+	var loc = marker.getPlace().location;
+	var lat = loc.lat();
+	var lng = loc.lng();
+
+	var self = this;
+	// callback invoked below
+	function processFoursquareData(data) {
+		// exits now if no venues were returned.
+		if(data.response.venues.length === 0) {
+			return;
+		}
+
+		// grabs venue object from data
+		var venue = data.response.venues[0];
+
+		// creates header and info container
+		var $foursquareContent = $('<div class="foursquare">');
+		$foursquareContent.append('<div class="content-title">Place details (from Foursquare)</div>');
+		$info = $('<div class="foursquare-info">');
+		$foursquareContent.append($info);
+
+		// appends venue category
+		var categories = venue.categories;
+		if(categories.length > 0 && categories[0].name) {
+			var tagline = '<i>' + categories[0].name + '</i>';
+			$info.append(tagline);
+		}
+
+		// appends menu and/or website, if available
+		if(venue.hasMenu || venue.url) {
+			$info.append('<br>');
+		}
+		if(venue.hasMenu) {
+			var menuUrl = venue.menu.mobileUrl;
+			var formattedMenuLink =
+				'<a href="' + menuUrl + '" target="_blank">' +
+				'View menu' +
+				'</a>';
+			$info.append(formattedMenuLink);
+		}
+		if(venue.hasMenu && venue.url) {
+			$info.append(' | ');
+		}
+		if(venue.url) {
+			var formattedWebsite =
+				'<a href="' + venue.url + '" target="_blank">' +
+				'Visit website' +
+				'</a>';
+			$info.append(formattedWebsite);
+		}
+
+		// appends address
+		var location = venue.location;
+		if(location.formattedAddress) {
+			var formattedAddress =
+				'<p><strong>Address:</strong>' +
+				'<br>' +
+				location.formattedAddress[0] +
+				'<br>' +
+				location.formattedAddress[1] +
+				'</p>';
+			$info.append(formattedAddress);
+		}
+
+		var contact = venue.contact;
+		// appends phone
+		if(contact.formattedPhone) {
+			var phoneUrl = 'tel:+' + contact.phone;
+			var formattedPhone =
+				'<p><strong>Phone:</strong> ' +
+				'<a href="' + phoneUrl + '" target="_blank">' +
+				contact.formattedPhone +
+				'</a></p>';
+			$info.append(formattedPhone);
+		}
+		// appends twitter
+		if(contact.twitter) {
+			var twitterUrl =
+				'https://twitter.com/' + contact.twitter;
+			var formattedTwitter =
+				'<p><strong>Twitter:</strong> ' +
+				'<a href="' + twitterUrl + '" target="_blank">' +
+				'@' + contact.twitter +
+				'</a></p>';
+			$info.append(formattedTwitter);
+		}
+
+		// appends link to foursquare page
+		var foursquareUrl = 'https://foursquare.com/v/' + venue.id;
+		var moreMessage =
+			'For more info, check out ' +
+			'<a href="' + foursquareUrl + '" target="_blank">' +
+			venue.name + ' on Foursquare' +
+			'</a>.';
+		$info.append('<p>' + moreMessage + '</p>');
+
+		// loads foursquare content
+        self.contentBlocks.foursquare = $foursquareContent[0].outerHTML;
+        // displays navigation arrows if necessary
+        self.checkNavigation();
+	};
+
+	// forms request url
+	var request =
+		'https://api.foursquare.com/v2/venues/search?' +
+		'll=' + lat + ',' + lng +
+		'&query=' + name +
+		'&client_id=' +
+		'MT2PAXNGUMMPXXGT05EJMHE2B2BEOWDLLLMDIHFYTRXE3DRD' +
+		'&client_secret=' +
+		'IBE2CFQIOMN4Q0ARJL14BUIVX1T0UOEDLFDNQY412LNMKLWR' +
+		'&v=20150822';
+
+	// makes request
+	$.getJSON(request, processFoursquareData);
+};
 // fetches wikipedia data, and if successful
 // adds it to infowindow
 AJAXWindow.prototype.fetchWikipedia = function() {
@@ -780,7 +897,7 @@ AJAXWindow.prototype.fetchWikipedia = function() {
             $list.append($entry);
         }
 
-        // loads streetview
+        // loads wikipedia content
         self.contentBlocks.wiki = $wikiContent[0].outerHTML;
         // displays navigation arrows if necessary
         self.checkNavigation();

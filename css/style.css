@@ -213,12 +213,14 @@ body {
 	line-height: 0;
 }
 
+.foursquare,
 .wiki {
 	overflow: auto;
 	height: 130px;
 	margin-right: 44px;
 }
 
+.foursquare-info,
 .wiki-list {
 	margin-left: 15px;
 }
@@ -260,6 +262,7 @@ body {
 
 .pending,
 .add-marker,
+.foursquare,
 .wiki {
 	margin-left: 25px;
 }
