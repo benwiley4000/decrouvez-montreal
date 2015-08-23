@@ -227,7 +227,7 @@ body {
 
 .move-left,
 .move-right {
-	background-color: rgba(0, 0, 0, 0.25);
+	background-color: #000;
 	padding: 10px;
 	font-size: 30px;
 	font-weight: bold;
@@ -237,11 +237,17 @@ body {
 	color: #FFF;
 	cursor: pointer;
 	display: none;
+	opacity: 0;
+}
+
+.window-content:hover .move-left,
+.window-content:hover .move-right {
+	opacity: 0.3;
 }
 
 .move-left:hover,
 .move-right:hover {
-	background-color: rgba(0, 0, 0, 0.5);
+	opacity: 0.6 !important;
 }
 
 .move-left {
