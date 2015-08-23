@@ -12,6 +12,9 @@
  * Street view overlay implementation based on sample
  * code found at https://goo.gl/7PjIy4
  *
+ * Custom knockout binding for map based on code found
+ * in StackOverflow answer at http://goo.gl/qPqtRL
+ *
  * Search box knockout binding based on code found in
  * StackOverflow answer at http://goo.gl/70ntzo
  * 
