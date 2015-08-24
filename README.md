@@ -8,4 +8,5 @@ If you want to save your places to look at later, you can add them as pinned mar
 INSTRUCTIONS: Launch index.html.
 
 Libraries used: jQuery, knockout.js
+
 APIs used: Google Maps (with Places), Google Streetview, Foursquare, WikiMedia
