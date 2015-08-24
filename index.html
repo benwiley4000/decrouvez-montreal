@@ -5,32 +5,34 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
 	<title>Dig Up San Francisco</title>
-	<link href="css/style.min.css" rel="stylesheet" type="text/css">
-	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link href="css/style.min.css" rel="stylesheet">
+	<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
 	<script src="js/libs/jquery-1.11.3.min.js"></script>
 	<script src="js/libs/knockout-min.js"></script>
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSHTbMivpWzvU1KkuWMO8MqYDDho8s-M8&libraries=places"></script>
 </head>
 <body>
 	<div id="content">
-		<div id="headline">Dig Up San Francisco</div>
+		<div id="headline" class="headline">Dig Up San Francisco</div>
 		<input id="pac-input" class="controls" type="text"
 			placeholder="Search for New Spots..."
 			data-bind="textInput: searchText,
 				event: {keypress: onEnter}">
-		<div id="clear-btn" title="Clear search query"
+		<div id="clear-btn" class="clear-btn"
+			title="Clear search query"
 			data-bind="visible: hasQuery, click: function() {
 				clearQuery();
 				// don't lose focus!!
 				$('#pac-input').focus();
 			}">
 		</div>
-		<div id="loading" data-bind="visible: loading">Loading...</div>
-		<div id="cant-connect" data-bind="visible: cantConnect">Cannot reach server - check connection.</div>
-		<div id="map-canvas" data-bind="map: mapData"></div>
-		<div id="sidebar">
-			<div id="sidebar-header">Your Places</div>
-			<div id="marker-list" data-bind="foreach: mapData.list">
+		<div id="loading" class="loading" data-bind="visible: loading">Loading...</div>
+		<div id="cant-connect" class="cant-connect" data-bind="visible: cantConnect">Cannot reach server - check connection.</div>
+		<div id="map-canvas" class="map-canvas" data-bind="map: mapData"></div>
+		<div id="sidebar" class="sidebar">
+			<div id="sidebar-header" class="sidebar-header">Your Places</div>
+			<div id="marker-list" class="marker-list"
+				data-bind="foreach: mapData.list">
 				<div class="marker-entry">
 					<div class="marker-name"
 						data-bind="click: function() {

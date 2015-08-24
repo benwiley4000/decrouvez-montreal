@@ -8,7 +8,7 @@ body,
 body {
     font-family: "Source Sans Pro", sans-serif;
 }
-#headline {
+.headline {
     font-weight: bold;
     font-size: 42px;
     text-transform: uppercase;
@@ -20,11 +20,11 @@ body {
     box-shadow: 5px 10px 15px 0px rgba(0, 0, 0, 0.4);
     border: 2px solid #000;
 }
-#headline:hover {
+.headline:hover {
     opacity: 0.5;
 }
-#loading,
-#cant-connect {
+.loading,
+.cant-connect {
     font-weight: bold;
     position: absolute;
     top: 20px;
@@ -33,15 +33,15 @@ body {
     background-color: #000;
     color: #fff;
 }
-#loading {
+.loading {
     font-size: 30px;
     left: calc(80% - 200px);
 }
-#cant-connect {
+.cant-connect {
     font-size: 18px;
     left: calc(80% - 400px);
 }
-#map-canvas {
+.map-canvas {
     height: calc(100% - 20px);
     width: calc(80% - 50px);
     margin: 0;
@@ -50,13 +50,13 @@ body {
     z-index: 1;
     border: 10px solid #000;
 }
-#sidebar {
+.sidebar {
     text-align: left;
     float: left;
     width: calc(20% + 30px);
     height: 100%;
 }
-#sidebar-header {
+.sidebar-header {
     font-weight: bold;
     text-transform: uppercase;
     font-size: 24px;
@@ -66,7 +66,7 @@ body {
     padding-left: 10px;
     height: 60px;
 }
-#marker-list {
+.marker-list {
     overflow: auto;
     height: calc(100% - 60px);
     background-color: #ffffeb;
@@ -138,7 +138,10 @@ body {
     text-overflow: ellipsis;
     width: 300px;
 }
-#clear-btn {
+#pac-input:focus {
+    border-color: #000;
+}
+.clear-btn {
     position: absolute;
     top: 22px;
     left: 295px;
@@ -148,11 +151,8 @@ body {
     cursor: default;
     z-index: 2;
 }
-#clear-btn:after {
+.clear-btn:after {
     content: "🅧";
-}
-#pac-input:focus {
-    border-color: #000;
 }
 .pac-container {
     font-family: "Roboto";
