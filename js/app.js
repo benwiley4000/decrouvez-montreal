@@ -33,14 +33,14 @@ var ZOOM = 10;
 // adds mapData to localStorage
 function store(mapData) {
 	// deep copies data
-	dataCopy = JSON.parse(JSON.stringify(mapData));
+	var dataCopy = JSON.parse(JSON.stringify(mapData));
 
 	// list didn't copy; unwraps it for storage
 	dataCopy.list = mapData.list();
 
 	// stores data
 	localStorage.mapData = JSON.stringify(dataCopy);
-};
+}
 
 // initializes 'mapData' using localStorage if available
 function initModel() {
@@ -101,7 +101,7 @@ function initModel() {
 		store(mapData);
 	}
 	return mapData;
-};
+}
 
 // the ViewModel
 function ViewModel() {
@@ -362,7 +362,7 @@ function ViewModel() {
 	self.updateStorage = function() {
 		store(self.mapData);
 	};
-};
+}
 
 // specifies custom binding for map
 ko.bindingHandlers.map = {
@@ -408,7 +408,7 @@ ko.bindingHandlers.map = {
 					$('#pac-input').show();
 					$('#sidebar').show();
 				}
-			};
+			}
 
 			// searches with name of map center and initializes rest of map data
 			PLACES.textSearch({query: mapData.placeName}, mapSetUp);
@@ -417,7 +417,7 @@ ko.bindingHandlers.map = {
 		// sets up the search bar on the map
 		function searchSetUp() {
 			var input = document.getElementById('pac-input');
-			window.searchBox = new GM.places.SearchBox(input);
+			var searchBox = new GM.places.SearchBox(input);
 			MAP.controls[GM.ControlPosition.TOP_LEFT].push(input);
 			searchBox.setBounds(mapData.centerData.viewport);
 			
@@ -873,7 +873,7 @@ AJAXWindow.prototype.fetchFoursquare = function() {
 		// creates header and info container
 		var $foursquareContent = $('<div class="foursquare">');
 		$foursquareContent.append('<div class="content-title">Place details (from Foursquare)</div>');
-		$info = $('<div class="foursquare-info">');
+		var $info = $('<div class="foursquare-info">');
 		$foursquareContent.append($info);
 
 		// appends venue category
@@ -962,7 +962,7 @@ AJAXWindow.prototype.fetchFoursquare = function() {
         self.contentBlocks.foursquare = $foursquareContent[0].outerHTML;
         // displays navigation arrows if necessary
         self.checkNavigation();
-	};
+	}
 
 	// forms request url
 	var request =
@@ -995,14 +995,14 @@ AJAXWindow.prototype.fetchWikipedia = function() {
 
 		var $wikiContent = $('<div class="wiki">');
 		$wikiContent.append('<div class="content-title">Wikipedia Results</div>');
-		$list = $('<div class="wiki-list">');
+		var $list = $('<div class="wiki-list">');
 		$wikiContent.append($list);
 
         // fills list with articles
         for(var i = 0; i < links.length; i++) {
             var title = titles[i];
             var link = links[i];
-            $entry = $('<div>');
+            var $entry = $('<div>');
             $entry.append('<a href="' +
 				link + '" target="_blank">' +
 				title + '</a>');

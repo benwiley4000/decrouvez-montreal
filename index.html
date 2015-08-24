@@ -7,9 +7,9 @@
 	<title>Dig Up San Francisco</title>
 	<link href="css/style.min.css" rel="stylesheet" type="text/css">
 	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
-    <script src="js/libs/jquery-1.11.3.min.js"></script>
+	<script src="js/libs/jquery-1.11.3.min.js"></script>
 	<script src="js/libs/knockout-min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSHTbMivpWzvU1KkuWMO8MqYDDho8s-M8&libraries=places"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSHTbMivpWzvU1KkuWMO8MqYDDho8s-M8&libraries=places"></script>
 </head>
 <body>
 	<div id="content">
@@ -17,7 +17,7 @@
 		<input id="pac-input" class="controls" type="text"
 			placeholder="Search for New Spots..."
 			data-bind="textInput: searchText,
-		               event: {keypress: onEnter}">
+				event: {keypress: onEnter}">
 		<div id="clear-btn" title="Clear search query"
 			data-bind="visible: hasQuery, click: function() {
 				clearQuery();
@@ -50,6 +50,6 @@
 		$('#pac-input').hide();
 		$('#sidebar').hide();
 	</script>
-    <script src="js/app.js"></script>
+	<script src="js/app.js"></script>
 </body>
 </html>

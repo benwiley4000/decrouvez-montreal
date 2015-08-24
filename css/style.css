@@ -1,286 +1,245 @@
 html,
 body,
 #content {
-	height: 100%;
-	margin: 0;
-	padding: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
-
 body {
-	font-family: 'Source Sans Pro', sans-serif;
+    font-family: "Source Sans Pro", sans-serif;
 }
-
 #headline {
-	font-weight: bold;
-	font-size: 42px;
-	text-transform: uppercase;
-	padding: 3px;
-	position: fixed;
-	left: 50px;
-	bottom: 25px;
-	z-index: 3;
-	box-shadow: 5px 10px 15px 0px rgba(0, 0, 0, 0.4);
-	border: 2px solid #000;
+    font-weight: bold;
+    font-size: 42px;
+    text-transform: uppercase;
+    padding: 3px;
+    position: fixed;
+    left: 50px;
+    bottom: 25px;
+    z-index: 3;
+    box-shadow: 5px 10px 15px 0px rgba(0, 0, 0, 0.4);
+    border: 2px solid #000;
 }
-
 #headline:hover {
-	opacity: 0.5;
+    opacity: 0.5;
 }
-
 #loading,
 #cant-connect {
-	font-weight: bold;
-	position: absolute;
-	top: 20px;
-	padding: 5px;
-	z-index: 2;
-	background-color: #000;
-	color: #FFF;
+    font-weight: bold;
+    position: absolute;
+    top: 20px;
+    padding: 5px;
+    z-index: 2;
+    background-color: #000;
+    color: #fff;
 }
-
 #loading {
-	font-size: 30px;
-	left: calc(80% - 200px);
+    font-size: 30px;
+    left: calc(80% - 200px);
 }
-
 #cant-connect {
-	font-size: 18px;
-	left: calc(80% - 400px);
+    font-size: 18px;
+    left: calc(80% - 400px);
 }
-
 #map-canvas {
-	height: calc(100% - 20px);
-	width: calc(80% - 50px);
-	margin: 0;
-	padding: 0;
-	float: left;
-	z-index: 1;
-	border: 10px solid #000;
+    height: calc(100% - 20px);
+    width: calc(80% - 50px);
+    margin: 0;
+    padding: 0;
+    float: left;
+    z-index: 1;
+    border: 10px solid #000;
 }
-
 #sidebar {
-	text-align: left;
-	float: left;
-	width: calc(20% + 30px);
-	height: 100%;
+    text-align: left;
+    float: left;
+    width: calc(20% + 30px);
+    height: 100%;
 }
-
 #sidebar-header {
-	font-weight: bold;
-	text-transform: uppercase;
-	font-size: 24px;
-	line-height: 2.4em;
-	background-color: #000;
-	color: #FFF;
-	padding-left: 10px;
-	height: 60px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 24px;
+    line-height: 2.4em;
+    background-color: #000;
+    color: #fff;
+    padding-left: 10px;
+    height: 60px;
 }
-
 #marker-list {
-	overflow: auto;
-	height: calc(100% - 60px);
-	background-color: #FFFFEB;
+    overflow: auto;
+    height: calc(100% - 60px);
+    background-color: #ffffeb;
 }
-
 .marker-entry {
-	overflow: hidden;
-	background-color: #F8F8FF;
-	padding-left: 10px;
-	background-color: inherit;
+    overflow: hidden;
+    background-color: #f8f8ff;
+    padding-left: 10px;
+    background-color: inherit;
 }
-
 .marker-entry:nth-child(odd) {
-	background-color: #FFFFCC;
+    background-color: #ffffcc;
 }
-
 .marker-entry:hover {
-	background-color: #F9D145;
+    background-color: #f9d145;
 }
-
 .marker-name {
-	height: auto;
-	padding-top: .3em;
-	padding-bottom: .3em;
-	float: left;
-	font-size: 18px;
-	line-height: 1.1em;
-	max-width: calc(100% - 46px);
-	cursor: pointer;
+    height: auto;
+    padding-top: .3em;
+    padding-bottom: .3em;
+    float: left;
+    font-size: 18px;
+    line-height: 1.1em;
+    max-width: calc(100% - 46px);
+    cursor: pointer;
 }
-
 .delete {
-	font-size: 20px;
-	height: 100%;
-	display: none;
-	float: right;
-	margin-right: 12px;
-	margin-top: 2px;
-	cursor: pointer;
-	 -webkit-transition-duration: .1s;
+    font-size: 20px;
+    height: 100%;
+    display: none;
+    float: right;
+    margin-right: 12px;
+    margin-top: 2px;
+    cursor: pointer;
+    -webkit-transition-duration: .1s;
     transition-duration: .1s;
 }
-
 .marker-entry:hover .delete {
-	display: initial;
+    display: initial;
 }
-
 .delete:after {
-	content: '✖';
+    content: "✖";
 }
-
 .delete:hover {
-	display: initial;
-	-webkit-transform: scale(1.3);
-	transform: scale(1.3);
-	text-shadow: 1px 1px rgba(0, 0, 0, 0.35);
+    display: initial;
+    -webkit-transform: scale(1.3);
+    transform: scale(1.3);
+    text-shadow: 1px 1px rgba(0, 0, 0, 0.35);
 }
-
 /* Google search CSS */
 
 .controls {
-  margin-top: 10px;
-  border: 2px solid transparent;
-  border-radius: 2px 0 0 2px;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  height: 32px;
-  outline: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    margin-top: 10px;
+    border: 2px solid transparent;
+    border-radius: 2px 0 0 2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    height: 32px;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
-
 #pac-input {
-  background-color: rgba(255, 255, 255, 0.92);
-  font-family: Roboto;
-  font-size: 15px;
-  font-weight: 300;
-  margin-left: 12px;
-  padding: 0 30px 0 13px;
-  text-overflow: ellipsis;
-  width: 300px;
+    background-color: rgba(255, 255, 255, 0.92);
+    font-family: Roboto;
+    font-size: 15px;
+    font-weight: 300;
+    margin-left: 12px;
+    padding: 0 30px 0 13px;
+    text-overflow: ellipsis;
+    width: 300px;
 }
-
 #clear-btn {
-	position: absolute;
-	top: 22px;
-	left: 295px;
-	color: #333;
-	font-size: 20px;
-	opacity: 0.92;
-	cursor: default;
-	z-index: 2;
+    position: absolute;
+    top: 22px;
+    left: 295px;
+    color: #333;
+    font-size: 20px;
+    opacity: 0.92;
+    cursor: default;
+    z-index: 2;
 }
-
 #clear-btn:after {
-	content: '🅧';
+    content: "🅧";
 }
-
 #pac-input:focus {
-  border-color: #000;
+    border-color: #000;
 }
-
 .pac-container {
-  font-family: Roboto;
+    font-family: "Roboto";
 }
-
 #type-selector {
-  color: #fff;
-  background-color: #000;
-  padding: 5px 11px 0px 11px;
+    color: #fff;
+    background-color: #000;
+    padding: 5px 11px 0px 11px;
 }
-
 #type-selector label {
-  font-family: Roboto;
-  font-size: 13px;
-  font-weight: 300;
+    font-family: "Roboto";
+    font-size: 13px;
+    font-weight: 300;
 }
-
 /* End Google Search CSS */
 
 .add-marker {
-	cursor: pointer;
-	padding-top: 5px;
+    cursor: pointer;
+    padding-top: 5px;
 }
-
 .window-content {
-	width: 300px;
-	height: 190px;
-	overflow: hidden;
+    width: 300px;
+    height: 190px;
+    overflow: hidden;
 }
-
 .window-content h3 {
-	margin-top: 0;
+    margin-top: 0;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
-
 .content-title {
-	font-weight: bold;
-	font-size: 1.05em;
-	margin-bottom: .2em;
+    font-weight: bold;
+    font-size: 1.05em;
+    margin-bottom: .2em;
 }
-
 .streetview {
-	cursor: pointer;
-	line-height: 0;
+    cursor: pointer;
+    line-height: 0;
 }
-
 .foursquare,
 .wiki {
-	overflow: auto;
-	height: 130px;
-	margin-right: 44px;
+    overflow: auto;
+    height: 130px;
+    margin-right: 44px;
 }
-
 .foursquare-info,
 .wiki-list {
-	margin-left: 15px;
+    margin-left: 15px;
 }
-
 .move-left,
 .move-right {
-	background-color: #000;
-	padding: 10px;
-	font-size: 30px;
-	font-weight: bold;
-	position: absolute;
-	top: 40%;
-	font-family: 'Roboto';
-	color: #FFF;
-	cursor: pointer;
-	display: none;
-	opacity: 0;
+    background-color: #000;
+    padding: 10px;
+    font-size: 30px;
+    font-weight: bold;
+    position: absolute;
+    top: 40%;
+    font-family: "Roboto";
+    color: #FFF;
+    cursor: pointer;
+    display: none;
+    opacity: 0;
 }
-
 .window-content:hover .move-left,
 .window-content:hover .move-right {
-	opacity: 0.3;
+    opacity: 0.3;
 }
-
 .move-left:hover,
 .move-right:hover {
-	opacity: 0.6 !important;
+    opacity: 0.6 !important;
 }
-
 .move-left {
-	left: 0;
+    left: 0;
 }
-
 .move-right {
-	right: 22px;
+    right: 22px;
 }
-
 .move-left:after {
-	content: '<';
+    content: "<";
 }
-
 .move-right:after {
-	content: '>';
+    content: ">";
 }
-
 .pending,
 .add-marker,
 .foursquare,
 .wiki {
-	margin-left: 25px;
+    margin-left: 25px;
 }
