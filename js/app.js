@@ -384,6 +384,16 @@ ko.bindingHandlers.map = {
 		// gets the ViewModel instance
 		var vm = bindingContext.$data;
 
+		// hides sidebar container when streetview is opened
+		// and shows it when streetview is hidden
+		PANO.addListener('visible_changed', function() {
+			if(PANO.getVisible()) {
+				$('#sidebar-container').hide();
+			} else {
+				$('#sidebar-container').show();
+			}
+		});
+
 		// if map center data exists, go ahead and initialize
 		if(mapData.centerData) {
 			MAP.setOptions({
