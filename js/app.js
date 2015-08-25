@@ -83,7 +83,7 @@ function initModel() {
 		
 		// calls convert on centerData and each place's geometry object
 		mapData.centerData = convertGeometry(mapData.centerData);
-		for(var i = 0; i < mapData.list.length; i++) {
+		for(var i = 0, len = mapData.list.length; i < len; i++) {
 			var place = mapData.list[i];
 			place.location = convertLoc(place.location);
 		}
@@ -305,10 +305,12 @@ function ViewModel() {
 			// associated foursquare categories (if
 			// available)
 			var categories = marker.categories;
-			for(var i = 0; categories && i < categories.length; i++) {
-				if(termsMatch(terms, categories[i])) {
-					self.selectedMarkers.push(marker);
-					return;
+			if(categories) {
+				for(var i = 0, len = categories.length; i < len; i++) {
+					if(termsMatch(terms, categories[i])) {
+						self.selectedMarkers.push(marker);
+						return;
+					}
 				}
 			}
 
@@ -320,7 +322,7 @@ function ViewModel() {
 
 			// checks if any of the radar search results
 			// has a place_id matching this marker
-			for(var i = 0; i < results.length; i++) {
+			for(var i = 0, len = results.length; i < len; i++) {
 				if(results[i].place_id === marker.place.placeId) {
 					self.selectedMarkers.push(marker);
 					return;
@@ -339,7 +341,7 @@ function ViewModel() {
 		target = target.toLowerCase();
 		// iterate through terms to to ensure they
 		// all match
-		for(var i = 0; i < terms.length; i++) {
+		for(var i = 0, len = terms.length; i < len; i++) {
 			if(target.indexOf(terms[i]) === -1) {
 				// if there is a mismatch, return false
 				return false;
@@ -353,7 +355,7 @@ function ViewModel() {
 	// pinned on map, false otherwise
 	self.pinned = function(place_id) {
 		var list = self.mapData.list();
-		for(var i = 0; i < list.length; i++) {
+		for(var i = 0, len = list.length; i < len; i++) {
 			if(list[i].place_id === place_id) {
 				return true;
 			}
@@ -514,7 +516,7 @@ ko.bindingHandlers.map = {
 
 		// adds markers, if there are more data entries than markers
 		if(list.length > markers.length) {
-			for(var i = markers.length; i < list.length; i++) {
+			for(var i = markers.length, len = list.length; i < len; i++) {
 				var place = list[i];
 
 				// creates marker
@@ -541,7 +543,7 @@ ko.bindingHandlers.map = {
 
 		// otherwise, if there are more markers, searches for marker to delete
 		else if(list.length < markers.length) {
-			for(var i = 0; i < markers.length; i++) {
+			for(var i = 0, len = markers.length; i < len; i++) {
 				var place = list[i];
 				var marker = markers[i];
 				if(!place || place.place_id !== marker.getPlace().placeId) {
@@ -1008,7 +1010,7 @@ AJAXWindow.prototype.fetchWikipedia = function() {
 		$wikiContent.append($list);
 
         // fills list with articles
-        for(var i = 0; i < links.length; i++) {
+        for(var i = 0, len = links.length; i < len; i++) {
             var title = titles[i];
             var link = links[i];
             var $entry = $('<div>');
