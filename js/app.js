@@ -661,9 +661,14 @@ function AJAXWindow(marker, vm, parentList) {
 		AJAXWindow.windowSwap(self);
 	});
 }
-// opens infoWindow
+// opens infoWindow, causes marker to bounce for 2 seconds
 AJAXWindow.prototype.open = function() {
-	this.infoWindow.open(MAP, this.marker);
+	var marker = this.marker;
+	this.infoWindow.open(MAP, marker);
+	marker.setAnimation(GM.Animation.BOUNCE);
+	setTimeout(function() {
+		marker.setAnimation(null);
+	},1400);
 };
 // closes infoWindow
 AJAXWindow.prototype.close = function() {
