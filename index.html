@@ -34,16 +34,15 @@
 			<div id="sidebar" class="sidebar" data-bind="visible: listShowing">
 				<div id="sidebar-header" class="sidebar-header">Your Places</div>
 				<div id="marker-list" class="marker-list"
-					data-bind="foreach: mapData.list">
+					data-bind="foreach: selectedMarkers">
 					<div class="marker-entry">
 						<div class="marker-name"
 							data-bind="click: function() {
-								$parent.clearQuery();
-								AJAXWindow.windowSwap($parent.markers[$index()].infoWindow);
+								AJAXWindow.windowSwap(infoWindow);
 							},
-							text: num > 1 ? name + ' (' + num + ')' : name">
+							text: data.num > 1 ? data.name + ' (' + data.num + ')' : data.name">
 						</div>
-						<div class="delete" data-bind="click: function() {$parent.removePlace(place_id)}"></div>
+						<div class="delete" data-bind="click: function() {$parent.removePlace(place.placeId)}"></div>
 					</div>
 				</div>
 			</div>
