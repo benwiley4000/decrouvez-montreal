@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
 	<title>Dig Up San Francisco</title>
-	<link href="css/style.min.css" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet">
 	<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
 	<script src="js/libs/jquery-1.11.3.min.js"></script>
 	<script src="js/libs/knockout-min.js"></script>
@@ -29,28 +29,29 @@
 		<div id="loading" class="loading" data-bind="visible: loading">Loading...</div>
 		<div id="cant-connect" class="cant-connect" data-bind="visible: cantConnect">Cannot reach server - check connection.</div>
 		<div id="map-canvas" class="map-canvas" data-bind="map: mapData"></div>
-		<div id="sidebar" class="sidebar">
-			<div id="sidebar-header" class="sidebar-header">Your Places</div>
-			<div id="marker-list" class="marker-list"
-				data-bind="foreach: mapData.list">
-				<div class="marker-entry">
-					<div class="marker-name"
-						data-bind="click: function() {
-							$parent.clearQuery();
-							AJAXWindow.windowSwap($parent.markers[$index()].infoWindow);
-						},
-						text: num > 1 ? name + ' (' + num + ')' : name">
+		<div id="sidebar-container" class="sidebar-container">
+			<div id="menu-btn" class="menu-btn" data-bind="click: toggleListDisplay"></div>
+			<div id="sidebar" class="sidebar" data-bind="visible: listShowing">
+				<div id="sidebar-header" class="sidebar-header">Places</div>
+				<div id="marker-list" class="marker-list"
+					data-bind="foreach: mapData.list">
+					<div class="marker-entry">
+						<div class="marker-name"
+							data-bind="click: function() {
+								$parent.clearQuery();
+								AJAXWindow.windowSwap($parent.markers[$index()].infoWindow);
+							},
+							text: num > 1 ? name + ' (' + num + ')' : name">
+						</div>
+						<div class="delete" data-bind="click: function() {$parent.removePlace(place_id)}"></div>
 					</div>
-					<div class="delete" data-bind="click: function() {$parent.removePlace(place_id)}"></div>
 				</div>
 			</div>
 		</div>
 	</div>
 	<script>
-		// until Google map has loaded, hide these elements
-		$('#headline').hide();
+		// until Google map has loaded, hide input
 		$('#pac-input').hide();
-		$('#sidebar').hide();
 	</script>
 	<script src="js/app.js"></script>
 </body>

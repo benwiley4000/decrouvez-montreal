@@ -118,6 +118,9 @@ function ViewModel() {
 		return self.searchText().length > 0;
 	});
 
+	// returns whether the marker list is showing
+	self.listShowing = ko.observable(false);
+
 	// indicates whether loading is in process
 	self.loading = ko.observable(false);
 
@@ -358,6 +361,11 @@ function ViewModel() {
 		return false;
 	};
 
+	// toggles truth value of list display
+	self.toggleListDisplay = function() {
+		self.listShowing(!self.listShowing());
+	};
+
 	// saves current state of mapData to localStorage
 	self.updateStorage = function() {
 		store(self.mapData);
@@ -383,10 +391,8 @@ ko.bindingHandlers.map = {
 			});
 			// set up the search bar
 			searchSetUp();
-			// show these elements
-			$('#headline').show();
+			// show input
 			$('#pac-input').show();
-			$('#sidebar').show();
 		}
 
 		// otherwise, data is searched for
@@ -403,10 +409,8 @@ ko.bindingHandlers.map = {
 					});
 					// set up the search bar
 					searchSetUp();
-					// show these elements
-					$('#headline').show();
+					// show input
 					$('#pac-input').show();
-					$('#sidebar').show();
 				}
 			}
 
