@@ -33,24 +33,6 @@ body {
         display: none;
     }
 }
-.loading,
-.cant-connect {
-    font-weight: bold;
-    position: absolute;
-    top: 20px;
-    padding: 5px;
-    z-index: 2;
-    background-color: #000;
-    color: #fff;
-}
-.loading {
-    font-size: 30px;
-    left: calc(80% - 200px);
-}
-.cant-connect {
-    font-size: 18px;
-    left: calc(80% - 400px);
-}
 .map-canvas {
     height: calc(100% - 20px);
     width: calc(100% - 20px);

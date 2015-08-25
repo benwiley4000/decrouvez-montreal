@@ -121,24 +121,6 @@ function ViewModel() {
 	// returns whether the marker list is showing
 	self.listShowing = ko.observable(false);
 
-	// indicates whether loading is in process
-	self.loading = ko.observable(false);
-
-	// indicates whether app is having trouble reaching
-	// the server
-	self.cantConnect = ko.observable(false);
-
-	// bool temporarily set to true whenever a search
-	// is fired with the enter key, to keep the
-	// SearchBox listener routine from calling the
-	// filter() method a second time. why not just
-	// call that method exclusively after the
-	// 'places_changed' event has been fired? this way,
-	// if the system temporarily goes offline, markers
-	// pinned to the map can still be filtered without
-	// issue.
-	self.alreadyFiltered = false;
-
 	// initializes empty array of Marker objects
 	self.markers = [];
 
@@ -236,103 +218,58 @@ function ViewModel() {
 			if(self.searchText() === "") {
 				self.clearResults();
 			}
-			// returns if there are no markers to filter
-			return;
 		} else if(self.searchText() === "") {
 			self.clearResults();
 			// don't filter without a query
 			self.selectedMarkers(self.markers);
 		} else {
-			// indicates loading has started
-			self.loading(true);
+			/*
+			 * checks to see if each stored marker should be
+			 * displayed for the current search query, w/ 2 steps:
+			 * A) See if query terms are all substrings of marker
+			 * title.
+			 * B) See if query terms are all substrings of any one
+			 * of the marker's associated foursquare categories
+			 * (if those are available).
+			 * :: If a match is found, the marker is selected and
+			 * :: the process starts over for the next marker.
+			 */
 
-			// gets rid of cant connect message (for now)
-			// if visible
-			self.cantConnect(false);
+			// starts with no matches
+			self.selectedMarkers([]);
 
-			// timeout calls matchData function w/o
-			// server query results if search hasn't
-			// returned after 5 seconds.
-			var matchAnyway = setTimeout(function() {
-				self.cantConnect(true);
-				matchData(null, "bad");
-			}, 5000);
-
-			// searches for matches
-			PLACES.radarSearch({
-				keyword: self.searchText(),
-				bounds: self.mapData.centerData.viewport
-			}, function(results, status) {
-				clearTimeout(matchAnyway);
-				matchData(results, status);
-			});
-		}
-	};
-
-	// checks to see if each stored marker should be
-	// displayed for the current search query, w/ 3 steps:
-	// A) See if query terms are all substrings of marker
-	// title.
-	// B) See if query terms are all substrings of any one
-	// of the marker's associated foursquare categories
-	// (if those are available).
-	// C) Finally, iterate through the 200 radar search
-	// results to see if any match the marker's place_id.
-	// :: If a match is found, the marker is selected and
-	// :: the process starts over for the next marker.
-	function matchData(results, status) {
-		// starts with no matches
-		self.selectedMarkers([]);
-
-		// splits query into array of lowercase terms,
-		// without trailing s's (to allow plurals)
-		var terms = self.searchText()
-					.toLowerCase()
-					.split(" ")
-					.map(function(term) {
-						return term.replace(/s$/, "");
-					});
-		
-		// checks each of the stored markers for matches
-		self.markers.forEach(function(marker) {
-			// checks if terms match this marker's title
-			if(termsMatch(terms, marker.getTitle())) {
-				self.selectedMarkers.push(marker);
-				return;
-			}
-
-			// checks if terms match any of this marker's
-			// associated foursquare categories (if
-			// available)
-			var categories = marker.categories;
-			if(categories) {
-				for(var i = 0, len = categories.length; i < len; i++) {
-					if(termsMatch(terms, categories[i])) {
-						self.selectedMarkers.push(marker);
-						return;
-					}
-				}
-			}
-
-			// ensures it's safe to proceed to radar search
-			// results
-			if(status !== GM.places.PlacesServiceStatus.OK) {
-				return;
-			}
-
-			// checks if any of the radar search results
-			// has a place_id matching this marker
-			for(var i = 0, len = results.length; i < len; i++) {
-				if(results[i].place_id === marker.place.placeId) {
+			// splits query into array of lowercase terms,
+			// without trailing s's (to allow plurals)
+			var terms = self.searchText()
+						.toLowerCase()
+						.split(" ")
+						.map(function(term) {
+							return term.replace(/s$/, "");
+						});
+			
+			// checks each of the stored markers for matches
+			self.markers.forEach(function(marker) {
+				// checks if terms match this marker's title
+				if(termsMatch(terms, marker.getTitle())) {
 					self.selectedMarkers.push(marker);
 					return;
 				}
-			}
-		});
 
-		// indicates loading is finished
-		self.loading(false);
-	}
+				// if not, checks if terms match any of this
+				// marker's associated foursquare categories (if
+				// available)
+				var categories = marker.categories;
+				if(categories) {
+					for(var i = 0, len = categories.length; i < len; i++) {
+						if(termsMatch(terms, categories[i])) {
+							self.selectedMarkers.push(marker);
+							return;
+						}
+					}
+				}
+			});
+		}
+	};
 
 	// returns whether each give search term is substring
 	// of target string
@@ -450,19 +387,6 @@ ko.bindingHandlers.map = {
 			var resultsList = vm.resultsList;
 			// listens for changes in the searchbox places
 			searchBox.addListener('places_changed', function() {
-				// if current markers aren't already being
-				// filtered, call the viewmodel's filter()
-				// method
-				if(!vm.alreadyFiltered) {
-					vm.filter();
-				}
-				// otherwise, makes sure the
-				// alreadyFiltered bool is set back to
-				// false
-				else {
-					vm.alreadyFiltered = false;
-				}
-
 				// gets place results
 				var places = searchBox.getPlaces();
 
