@@ -10,3 +10,5 @@ INSTRUCTIONS: Launch index.html.
 Libraries used: jQuery, knockout.js
 
 APIs used: Google Maps (with Places), Google Streetview, Foursquare, WikiMedia
+
+github: https://github.com/benwiley4000/dig-up-san-fran/
